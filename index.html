@@ -26,7 +26,7 @@
      CONFIG — paste your GAS URL here
 ═══════════════════════════════════════ -->
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzMdAP5xY6Sku1UUgvUtDnrs_siFvsVcwtIgGIbR2FUboAiz-0mBqO-W_ttHgT3XkMvRg/exec";
+const GAS_URL = "YOUR_GAS_WEB_APP_URL_HERE";
 </script>
 
 <!-- ═══════════════════════════════════════
@@ -35,7 +35,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzMdAP5xY6Sku1UUgvUtDnr
 <div id="app">
 
   <!-- LOGIN PAGE -->
-  <div data-page="login" class="active min-h-screen flex">
+  <div data-page="login" class="active min-h-screen flex fixed inset-0 z-50 bg-white">
     <div class="hidden lg:flex w-1/2 bg-blue-700 text-white items-center justify-center">
       <div class="text-center px-12">
         <div class="text-6xl mb-6">⚡</div>
@@ -440,8 +440,10 @@ function showLoginError(msg) {
   BOOT APP after login
 ********************************************************/
 function bootApp() {
-  // Show main layout, hide login
-  document.querySelector("[data-page='login']").classList.remove("active");
+  // Hide login page completely
+  const loginPage = document.querySelector("[data-page='login']");
+  loginPage.classList.remove("active");
+  loginPage.style.display = "none";
   document.getElementById("main-layout").classList.remove("hidden");
 
   // Set header
@@ -482,7 +484,9 @@ function logout() {
   clearSession();
   CURRENT_USER = null;
   document.getElementById("main-layout").classList.add("hidden");
-  document.querySelector("[data-page='login']").classList.add("active");
+  const loginPage = document.querySelector("[data-page='login']");
+  loginPage.style.display = "";
+  loginPage.classList.add("active");
   document.getElementById("login-username").value = "";
   document.getElementById("login-password").value = "";
   document.getElementById("login-error").classList.add("hidden");
