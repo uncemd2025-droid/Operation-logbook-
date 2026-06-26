@@ -360,17 +360,15 @@ let shiftStatus   = "Draft";
   API — fetch wrapper
 ********************************************************/
 async function api(action, payload = {}) {
-  const res = await fetch(GAS_URL, {
-    method      : "POST",
-    redirect    : "follow",
-    headers     : { "Content-Type": "text/plain" },
-    body        : JSON.stringify({ action, ...payload })
-  });
-  const text = await res.text();
+  // GAS requires GET with encoded payload to avoid redirect issues
+  const data   = encodeURIComponent(JSON.stringify({ action, ...payload }));
+  const url    = GAS_URL + "?data=" + data;
+  const res    = await fetch(url, { redirect: "follow" });
+  const text   = await res.text();
   try {
     return JSON.parse(text);
   } catch(e) {
-    console.error("Response was not JSON:", text.substring(0, 200));
+    console.error("GAS response:", text.substring(0, 300));
     throw new Error("Invalid response from server");
   }
 }
