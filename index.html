@@ -353,6 +353,7 @@ const TG_CARDS = [
       <nav class="p-2 flex-1 overflow-y-auto">
         <button onclick="showPage('dashboard')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📊 Dashboard</button>
         <button onclick="showPage('shift-entry')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📝 Shift Entry</button>
+        <button onclick="showPage('trends')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📈 Trends</button>
         <div id="nav-si" class="hidden">
           <button onclick="showPage('approvals')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">✅ Approvals</button>
         </div>
@@ -369,30 +370,59 @@ const TG_CARDS = [
 
       <!-- ══ DASHBOARD ══ -->
       <div data-page="dashboard" class="p-4 lg:p-6">
-        <h1 class="text-2xl font-bold mb-5">Dashboard</h1>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="flex justify-between items-center mb-5 flex-wrap gap-2">
+          <h1 class="text-2xl font-bold">Dashboard</h1>
+          <button onclick="loadDashboard()" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-200">🔄 Refresh</button>
+        </div>
+
+        <!-- Summary cards — top row -->
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-5" id="db-cards-row">
           <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
-            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Critical Alarms</div>
+            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Current Alarms</div>
             <div id="db-alarms" class="text-3xl font-bold text-red-600">--</div>
+            <div class="text-xs text-gray-400 mt-1">Today</div>
           </div>
           <div class="bg-white rounded-xl shadow p-4 border-l-4 border-orange-500">
             <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Trips Today</div>
             <div id="db-trips" class="text-3xl font-bold text-orange-600">--</div>
+            <div class="text-xs text-gray-400 mt-1">Equipment trips</div>
           </div>
-          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500">
+          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500" id="db-approvals-card">
             <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Pending Approvals</div>
             <div id="db-approvals" class="text-3xl font-bold text-yellow-600">--</div>
-          </div>
-          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
-            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Today's Entries</div>
-            <div id="db-entries" class="text-3xl font-bold text-blue-600">--</div>
+            <div class="text-xs text-gray-400 mt-1">Awaiting review</div>
           </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-5">
-          <h2 class="font-semibold mb-3 text-gray-700">Quick Actions</h2>
-          <div class="flex flex-wrap gap-3">
+
+        <!-- Previous shift summary (Desk Engineer focus) -->
+        <div class="bg-white rounded-xl shadow p-5 mb-5">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="font-bold text-gray-700">⚠️ Previous Shift — Alarms & Trips Summary</h2>
+            <span id="db-prev-shift-label" class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full"></span>
+          </div>
+          <div id="db-prev-summary" class="text-sm text-gray-400">Loading…</div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <!-- Alarm breakdown bar chart -->
+          <div class="bg-white rounded-xl shadow p-5">
+            <h2 class="font-semibold text-gray-700 mb-4">Today's Status Breakdown</h2>
+            <div id="db-bar-chart" class="space-y-3"></div>
+          </div>
+          <!-- Shift comparison -->
+          <div class="bg-white rounded-xl shadow p-5">
+            <h2 class="font-semibold text-gray-700 mb-4">Shift Comparison (Last 3 Days)</h2>
+            <canvas id="db-trend-chart" height="180"></canvas>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold mb-3 text-gray-700 text-sm">Quick Actions</h2>
+          <div class="flex flex-wrap gap-2">
             <button onclick="showPage('shift-entry')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">📝 Enter Shift Data</button>
-            <button onclick="loadDashboard()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">🔄 Refresh</button>
+            <button onclick="showPage('trends')" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">📈 View Trends</button>
           </div>
         </div>
       </div>
@@ -502,6 +532,104 @@ const TG_CARDS = [
         </div>
       </div>
 
+      <!-- ══ TRENDS ══ -->
+      <div data-page="trends" class="p-4 lg:p-6">
+        <h1 class="text-2xl font-bold mb-5">📈 Parameter Trends</h1>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl shadow p-4 mb-5">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <select id="tr-unit" class="border rounded-lg p-2 text-sm">
+              <option value="U6">Unit 6</option><option value="U1">Unit 1</option>
+              <option value="U2">Unit 2</option><option value="U3">Unit 3</option>
+              <option value="U4">Unit 4</option><option value="U5">Unit 5</option>
+            </select>
+            <select id="tr-system" class="border rounded-lg p-2 text-sm">
+              <option value="SG">SG</option><option value="TG">TG</option>
+            </select>
+            <select id="tr-param" class="border rounded-lg p-2 text-sm col-span-2">
+              <option value="">— Select Parameter —</option>
+            </select>
+            <button onclick="loadTrendParams()" class="bg-slate-700 text-white rounded-lg text-sm px-3">Load List</button>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+            <div>
+              <label class="text-xs text-gray-500 block mb-1">From Date</label>
+              <input type="date" id="tr-from" class="border rounded-lg p-2 text-sm w-full">
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1">To Date</label>
+              <input type="date" id="tr-to" class="border rounded-lg p-2 text-sm w-full">
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1">Shift</label>
+              <select id="tr-shift" class="border rounded-lg p-2 text-sm w-full">
+                <option value="">All Shifts</option>
+                <option value="A">A Shift</option>
+                <option value="B">B Shift</option>
+                <option value="C">C Shift</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button onclick="loadTrend()" class="bg-purple-600 text-white rounded-lg text-sm px-4 py-2 w-full hover:bg-purple-700 font-medium">
+                📈 Plot Trend
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trend Chart -->
+        <div class="bg-white rounded-xl shadow p-5 mb-5">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-gray-700" id="tr-chart-title">Select a parameter and date range</h2>
+            <div class="flex gap-2 text-xs">
+              <span class="px-2 py-1 rounded bg-orange-100 text-orange-700" id="tr-alarm-line-label"></span>
+              <span class="px-2 py-1 rounded bg-red-100 text-red-700" id="tr-trip-line-label"></span>
+            </div>
+          </div>
+          <div id="tr-loading" class="hidden text-center text-gray-400 py-8">⏳ Loading trend data…</div>
+          <canvas id="tr-chart" height="250"></canvas>
+          <div id="tr-empty" class="text-center text-gray-400 py-8 hidden">No data found for selected range</div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5" id="tr-stats" style="display:none">
+          <div class="bg-white rounded-xl shadow p-4 text-center">
+            <div class="text-xs text-gray-500 mb-1">Min Value</div>
+            <div id="tr-min" class="text-2xl font-bold text-blue-600">—</div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 text-center">
+            <div class="text-xs text-gray-500 mb-1">Max Value</div>
+            <div id="tr-max" class="text-2xl font-bold text-red-600">—</div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 text-center">
+            <div class="text-xs text-gray-500 mb-1">Average</div>
+            <div id="tr-avg" class="text-2xl font-bold text-green-600">—</div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 text-center">
+            <div class="text-xs text-gray-500 mb-1">Alarm Events</div>
+            <div id="tr-alarm-count" class="text-2xl font-bold text-orange-600">—</div>
+          </div>
+        </div>
+
+        <!-- Data table -->
+        <div class="bg-white rounded-xl shadow overflow-auto" id="tr-table-wrap" style="display:none">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="p-3 text-left">Date</th>
+                <th class="p-3 text-left">Shift</th>
+                <th class="p-3 text-center">Value</th>
+                <th class="p-3 text-center">Status</th>
+                <th class="p-3 text-left">Remark</th>
+                <th class="p-3 text-left">Entered By</th>
+              </tr>
+            </thead>
+            <tbody id="tr-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- ══ ADMIN USERS ══ -->
       <div data-page="admin-users" class="p-4 lg:p-6">
         <h1 class="text-2xl font-bold mb-5">User Management</h1>
@@ -512,7 +640,7 @@ const TG_CARDS = [
             <input id="new-fullname" placeholder="Full Name" class="border rounded-lg p-3 text-sm">
             <input id="new-password" type="password" placeholder="Password" class="border rounded-lg p-3 text-sm">
             <select id="new-role" class="border rounded-lg p-3 text-sm">
-              <option value="Operator">Operator</option>
+              <option value="Desk Engineer">Desk Engineer</option>
               <option value="Shift Incharge">Shift Incharge</option>
               <option value="Admin">Admin</option>
             </select>
@@ -841,6 +969,11 @@ function bootApp() {
   if (CURRENT_USER.role === "Admin") {
     document.getElementById("nav-admin").classList.remove("hidden");
   }
+  // Hide approvals card for Desk Engineer
+  if (CURRENT_USER.role === "Desk Engineer") {
+    const card = document.getElementById("db-approvals-card");
+    if (card) card.style.display = "none";
+  }
   // Populate unit dropdown
   const sel = document.getElementById("se-unit");
   sel.innerHTML = "";
@@ -904,21 +1037,176 @@ function closeSidebar() {
 
 /******* DASHBOARD *******/
 async function loadDashboard() {
-  const today  = new Date().toISOString().split("T")[0];
-  const unitId = CURRENT_USER.role==="Admin" ? "U6"
+  const today   = new Date().toISOString().split("T")[0];
+  const unitId  = CURRENT_USER.role==="Admin" ? "U6"
     : (Array.isArray(CURRENT_USER.unitAccess)
        ? CURRENT_USER.unitAccess[0]
        : CURRENT_USER.unitAccess.split(",")[0]);
+
+  // Previous shift calculation
+  const h = new Date().getHours();
+  let prevShift, prevDate = today;
+  if (h >= 6 && h < 14)       { prevShift = "C"; const d=new Date(); d.setDate(d.getDate()-1); prevDate=d.toISOString().split("T")[0]; }
+  else if (h >= 14 && h < 22) { prevShift = "A"; }
+  else                         { prevShift = "B"; }
+
   try {
-    const [alarm, pend] = await Promise.all([
-      api("getDailyAlarmSummary",{date:today,unitId}),
-      api("getPendingApprovals")
-    ]);
+    const promises = [
+      api("getDailyAlarmSummary", {date:today, unitId}),
+      api("getPendingApprovals"),
+      api("getShiftEntries", {date:prevDate, shift:prevShift, unitId, system:"SG"}),
+      api("getShiftEntries", {date:prevDate, shift:prevShift, unitId, system:"TG"}),
+    ];
+    const [alarm, pend, prevSG, prevTG] = await Promise.all(promises);
+
+    // Top cards
     document.getElementById("db-alarms").textContent    = alarm.alarm||0;
     document.getElementById("db-trips").textContent     = alarm.trip||0;
-    document.getElementById("db-approvals").textContent = Array.isArray(pend)?pend.length:0;
-    document.getElementById("db-entries").textContent   = (alarm.caution||0)+(alarm.warning||0)+(alarm.alarm||0)+(alarm.trip||0);
+    document.getElementById("db-approvals").textContent = Array.isArray(pend) ? pend.length : 0;
+
+    // Bar chart
+    renderDbBarChart(alarm);
+
+    // Previous shift summary
+    renderPrevShiftSummary(prevSG, prevTG, prevShift, prevDate, unitId);
+
+    // Trend chart (last 3 days alarm counts)
+    await renderDbTrendChart(unitId, today);
+
   } catch(e) { console.error("Dashboard:", e); }
+}
+
+function renderDbBarChart(alarm) {
+  const el = document.getElementById("db-bar-chart");
+  const data = [
+    { label:"TRIP",    val: alarm.trip||0,    color:"bg-red-700",    text:"text-red-700" },
+    { label:"ALARM",   val: alarm.alarm||0,   color:"bg-red-400",    text:"text-red-500" },
+    { label:"WARNING", val: alarm.warning||0, color:"bg-orange-400", text:"text-orange-500" },
+    { label:"CAUTION", val: alarm.caution||0, color:"bg-yellow-400", text:"text-yellow-600" },
+  ];
+  const max = Math.max(...data.map(d=>d.val), 1);
+  el.innerHTML = data.map(d => `
+    <div class="flex items-center gap-3">
+      <div class="w-16 text-xs font-semibold ${d.text} text-right">${d.label}</div>
+      <div class="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+        <div class="${d.color} h-5 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+          style="width:${Math.max(d.val/max*100,2)}%">
+          ${d.val > 0 ? `<span class="text-white text-xs font-bold">${d.val}</span>` : ""}
+        </div>
+      </div>
+      <div class="w-6 text-xs text-gray-500 font-medium">${d.val}</div>
+    </div>`).join("");
+}
+
+function renderPrevShiftSummary(sg, tg, shift, date, unitId) {
+  const all    = [...(sg||[]), ...(tg||[])];
+  const alarms = all.filter(e => e.alarmStatus === "ALARM" || e.alarmStatus === "TRIP");
+  const trips  = all.filter(e => e.alarmStatus === "TRIP");
+
+  document.getElementById("db-prev-shift-label").textContent =
+    `${shift} Shift | ${date} | ${unitId}`;
+
+  if (!all.length) {
+    document.getElementById("db-prev-summary").innerHTML =
+      `<span class="text-gray-400">No entries found for previous shift</span>`;
+    return;
+  }
+
+  const rows = alarms.slice(0,8).map(e => `
+    <div class="flex items-center justify-between py-1.5 border-b last:border-0">
+      <span class="text-gray-700 text-sm">${e.parameterId}</span>
+      <div class="flex items-center gap-3">
+        <span class="font-bold text-sm">${e.value}</span>
+        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${
+          e.alarmStatus==="TRIP"
+            ? "bg-red-700 text-white"
+            : "bg-red-100 text-red-700"}">${e.alarmStatus}</span>
+        <span class="text-xs text-gray-400 max-w-xs truncate">${e.remark||"—"}</span>
+      </div>
+    </div>`).join("");
+
+  document.getElementById("db-prev-summary").innerHTML = `
+    <div class="flex gap-4 mb-3 text-sm">
+      <span class="bg-red-50 text-red-700 px-3 py-1 rounded-lg font-semibold">🔴 ${trips.length} Trips</span>
+      <span class="bg-orange-50 text-orange-700 px-3 py-1 rounded-lg font-semibold">⚠️ ${alarms.length - trips.length} Alarms</span>
+      <span class="bg-slate-50 text-slate-600 px-3 py-1 rounded-lg">📋 ${all.length} Total Entries</span>
+    </div>
+    ${alarms.length ? rows : '<div class="text-green-600 font-medium">✅ No alarms or trips in previous shift</div>'}
+    ${alarms.length > 8 ? `<div class="text-xs text-gray-400 mt-2">+${alarms.length-8} more — view in Trends</div>` : ""}`;
+}
+
+async function renderDbTrendChart(unitId, today) {
+  // Get last 3 days
+  const dates = [];
+  for (let i = 2; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+  try {
+    const results = await Promise.all(dates.map(d => api("getDailyAlarmSummary", {date:d, unitId})));
+    const canvas  = document.getElementById("db-trend-chart");
+    const ctx     = canvas.getContext("2d");
+    const W = canvas.offsetWidth || 400;
+    const H = 180;
+    canvas.width  = W;
+    canvas.height = H;
+    ctx.clearRect(0,0,W,H);
+
+    const shifts = ["A","B","C"];
+    const labels = [];
+    dates.forEach(d => shifts.forEach(s => labels.push(d.slice(5)+" "+s)));
+
+    const alarmVals = results.flatMap(r => [r.alarm||0, r.alarm||0, r.alarm||0]);
+    const tripVals  = results.flatMap(r => [r.trip||0,  r.trip||0,  r.trip||0]);
+    const max = Math.max(...alarmVals, ...tripVals, 1);
+
+    const pad = {l:30, r:10, t:10, b:30};
+    const cW  = W - pad.l - pad.r;
+    const cH  = H - pad.t - pad.b;
+    const step = cW / (labels.length - 1);
+
+    // Grid lines
+    ctx.strokeStyle = "#F1F5F9"; ctx.lineWidth = 1;
+    for (let i=0; i<=4; i++) {
+      const y = pad.t + cH * i/4;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
+      ctx.fillStyle="#94A3B8"; ctx.font="10px sans-serif"; ctx.textAlign="right";
+      ctx.fillText(Math.round(max*(1-i/4)), pad.l-4, y+4);
+    }
+
+    // Labels
+    ctx.fillStyle="#94A3B8"; ctx.font="9px sans-serif"; ctx.textAlign="center";
+    labels.forEach((l,i) => {
+      ctx.fillText(l, pad.l + i*step, H - pad.b + 14);
+    });
+
+    // Draw line helper
+    function drawLine(vals, color, fill) {
+      ctx.beginPath();
+      vals.forEach((v,i) => {
+        const x = pad.l + i*step;
+        const y = pad.t + cH * (1 - v/max);
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      });
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+      ctx.lineJoin = "round"; ctx.stroke();
+      // Dots
+      vals.forEach((v,i) => {
+        const x = pad.l + i*step;
+        const y = pad.t + cH * (1 - v/max);
+        ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2);
+        ctx.fillStyle = color; ctx.fill();
+      });
+    }
+
+    drawLine(alarmVals, "#EF4444");
+    drawLine(tripVals,  "#F97316");
+
+    // Legend
+    ctx.font="11px sans-serif"; ctx.textAlign="left";
+    ctx.fillStyle="#EF4444"; ctx.fillRect(pad.l, 4, 12, 4); ctx.fillStyle="#374151"; ctx.fillText("Alarm", pad.l+16, 11);
+    ctx.fillStyle="#F97316"; ctx.fillRect(pad.l+70, 4, 12, 4); ctx.fillStyle="#374151"; ctx.fillText("Trip", pad.l+86, 11);
+  } catch(e) { console.error("Trend chart:", e); }
 }
 
 /******* SHIFT ENTRY — LOAD *******/
@@ -1699,6 +1987,180 @@ async function cloneParameters() {
   if (!s || !t) return;
   alert("Clone " + s + " → " + t + "\nThis will be implemented in the next update.");
 }
+
+/******* TRENDS *******/
+let trParamData = [];
+
+async function loadTrendParams() {
+  const uid = document.getElementById("tr-unit").value;
+  const sys = document.getElementById("tr-system").value;
+  try {
+    const r = await api("getParameters",{unitId:uid,system:sys});
+    const sel = document.getElementById("tr-param");
+    sel.innerHTML = "<option value=''>— Select Parameter —</option>";
+    if (r&&r.length) {
+      const groups={};
+      r.forEach(p=>{if(!groups[p.groupName])groups[p.groupName]=[];groups[p.groupName].push(p);});
+      Object.keys(groups).forEach(g=>{
+        const og=document.createElement("optgroup"); og.label=g;
+        groups[g].forEach(p=>{
+          const o=document.createElement("option");
+          o.value=JSON.stringify({id:p.parameterId,name:p.parameterName,ah:p.alarmHigh,th:p.tripHigh,al:p.alarmLow,tl:p.tripLow,unit:p.unit});
+          o.textContent=p.parameterName; og.appendChild(o);
+        });
+        sel.appendChild(og);
+      });
+    }
+  } catch(e){alert("Error: "+e.message);}
+}
+
+async function loadTrend() {
+  const paramRaw=document.getElementById("tr-param").value;
+  const from=document.getElementById("tr-from").value;
+  const to=document.getElementById("tr-to").value;
+  const shift=document.getElementById("tr-shift").value;
+  const uid=document.getElementById("tr-unit").value;
+  const sys=document.getElementById("tr-system").value;
+  if(!paramRaw){alert("Select a parameter");return;}
+  if(!from||!to){alert("Select date range");return;}
+  const param=JSON.parse(paramRaw);
+
+  document.getElementById("tr-loading").classList.remove("hidden");
+  document.getElementById("tr-empty").classList.add("hidden");
+  document.getElementById("tr-table-wrap").style.display="none";
+  document.getElementById("tr-stats").style.display="none";
+
+  try {
+    const dates=[];
+    let cur=new Date(from); const end=new Date(to);
+    while(cur<=end){dates.push(cur.toISOString().split("T")[0]);cur.setDate(cur.getDate()+1);}
+    const shifts=shift?[shift]:["A","B","C"];
+    const allEntries=[];
+    const fetches=[];
+    dates.forEach(d=>shifts.forEach(s=>{
+      fetches.push(api("getShiftEntries",{date:d,shift:s,unitId:uid,system:sys})
+        .then(rows=>(rows||[]).filter(r=>r.parameterId==param.id).map(r=>({...r,date:d,shift:s}))));
+    }));
+    const results=await Promise.all(fetches);
+    results.forEach(r=>allEntries.push(...r));
+    allEntries.sort((a,b)=>a.date.localeCompare(b.date)||a.shift.localeCompare(b.shift));
+
+    document.getElementById("tr-loading").classList.add("hidden");
+    if(!allEntries.length){document.getElementById("tr-empty").classList.remove("hidden");return;}
+
+    const vals=allEntries.map(e=>Number(e.value)).filter(v=>!isNaN(v));
+    const mn=Math.min(...vals),mx=Math.max(...vals),av=vals.reduce((a,b)=>a+b,0)/vals.length;
+    const alarmCount=allEntries.filter(e=>e.alarmStatus&&e.alarmStatus!=="NORMAL").length;
+    document.getElementById("tr-min").textContent=mn.toFixed(2);
+    document.getElementById("tr-max").textContent=mx.toFixed(2);
+    document.getElementById("tr-avg").textContent=av.toFixed(2);
+    document.getElementById("tr-alarm-count").textContent=alarmCount;
+    document.getElementById("tr-stats").style.display="grid";
+
+    const ah=param.ah!==""&&param.ah!==null?Number(param.ah):null;
+    const th=param.th!==""&&param.th!==null?Number(param.th):null;
+    const al=param.al!==""&&param.al!==null?Number(param.al):null;
+    const tl=param.tl!==""&&param.tl!==null?Number(param.tl):null;
+    document.getElementById("tr-alarm-line-label").textContent=ah?`Alarm H: ${ah}`:al?`Alarm L: ${al}`:"";
+    document.getElementById("tr-trip-line-label").textContent=th?`Trip H: ${th}`:tl?`Trip L: ${tl}`:"";
+    document.getElementById("tr-chart-title").textContent=`${param.name} (${param.unit||""}) — ${from} to ${to}`;
+
+    renderTrendChart(allEntries,param,ah,th,al,tl);
+
+    document.getElementById("tr-table-body").innerHTML=allEntries.map(e=>{
+      const sc=e.alarmStatus==="TRIP"?"bg-red-700 text-white":
+               e.alarmStatus==="ALARM"?"bg-red-100 text-red-700":
+               e.alarmStatus==="WARNING"?"bg-orange-100 text-orange-700":
+               e.alarmStatus==="CAUTION"?"bg-yellow-100 text-yellow-700":"bg-green-100 text-green-700";
+      return `<tr class="border-b hover:bg-slate-50">
+        <td class="p-3 text-sm">${e.date}</td>
+        <td class="p-3 text-sm">${e.shift} Shift</td>
+        <td class="p-3 text-center font-bold">${e.value}</td>
+        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${sc}">${e.alarmStatus||"NORMAL"}</span></td>
+        <td class="p-3 text-sm text-gray-500">${e.remark||"—"}</td>
+        <td class="p-3 text-sm text-gray-400">${e.enteredBy||"—"}</td>
+      </tr>`;
+    }).join("");
+    document.getElementById("tr-table-wrap").style.display="block";
+  } catch(e){
+    document.getElementById("tr-loading").classList.add("hidden");
+    alert("Error: "+e.message);
+  }
+}
+
+function renderTrendChart(entries,param,ah,th,al,tl) {
+  const canvas=document.getElementById("tr-chart");
+  const ctx=canvas.getContext("2d");
+  const W=canvas.offsetWidth||700, H=250;
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const vals=entries.map(e=>Number(e.value));
+  const limits=[ah,th,al,tl].filter(v=>v!==null&&v!==undefined&&v!=="").map(Number);
+  const allV=[...vals,...limits];
+  const dMax=Math.max(...allV)*1.1, dMin=Math.min(...allV,0)-Math.abs(Math.min(...allV,0))*0.05;
+  const range=dMax-dMin||1;
+  const pad={l:45,r:15,t:20,b:35};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const step=cW/Math.max(entries.length-1,1);
+  const toY=v=>pad.t+cH*(1-(v-dMin)/range);
+
+  // Grid
+  ctx.strokeStyle="#F1F5F9"; ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const y=pad.t+cH*i/5;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle="#94A3B8";ctx.font="10px sans-serif";ctx.textAlign="right";
+    ctx.fillText((dMin+range*(1-i/5)).toFixed(1),pad.l-4,y+4);
+  }
+
+  // X labels
+  const every=Math.max(1,Math.floor(entries.length/8));
+  ctx.fillStyle="#94A3B8";ctx.font="9px sans-serif";ctx.textAlign="center";
+  entries.forEach((e,i)=>{if(i%every===0)ctx.fillText(e.date.slice(5)+" "+e.shift,pad.l+i*step,H-pad.b+14);});
+
+  // Limit lines
+  function drawLimit(v,color,lbl){
+    if(v===null||v===""||v===undefined)return;
+    const y=toY(Number(v));
+    ctx.setLineDash([5,4]);ctx.strokeStyle=color;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=color;ctx.font="bold 10px sans-serif";ctx.textAlign="left";
+    ctx.fillText(lbl+" "+v,pad.l+4,y-3);
+  }
+  drawLimit(ah,"#EF4444","AH");drawLimit(th,"#991B1B","TH");
+  drawLimit(al,"#3B82F6","AL");drawLimit(tl,"#1E40AF","TL");
+
+  // Fill
+  ctx.beginPath();
+  entries.forEach((e,i)=>{const x=pad.l+i*step,y=toY(Number(e.value));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo(pad.l+(entries.length-1)*step,pad.t+cH);ctx.lineTo(pad.l,pad.t+cH);ctx.closePath();
+  ctx.fillStyle="rgba(99,102,241,0.08)";ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  entries.forEach((e,i)=>{const x=pad.l+i*step,y=toY(Number(e.value));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.strokeStyle="#6366F1";ctx.lineWidth=2.5;ctx.lineJoin="round";ctx.stroke();
+
+  // Dots
+  entries.forEach((e,i)=>{
+    const x=pad.l+i*step,y=toY(Number(e.value));
+    const c=e.alarmStatus==="TRIP"?"#991B1B":e.alarmStatus==="ALARM"?"#EF4444":
+            e.alarmStatus==="WARNING"?"#F97316":e.alarmStatus==="CAUTION"?"#EAB308":"#6366F1";
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle=c;ctx.fill();ctx.strokeStyle="white";ctx.lineWidth=1.5;ctx.stroke();
+  });
+}
+
+// Set default date range
+(function(){
+  const to=new Date(), from=new Date(); from.setDate(from.getDate()-7);
+  const fmt=d=>d.toISOString().split("T")[0];
+  const tf=document.getElementById("tr-from"),tt=document.getElementById("tr-to");
+  if(tf)tf.value=fmt(from); if(tt)tt.value=fmt(to);
+})();
+
 </script>
 </body>
 </html>
