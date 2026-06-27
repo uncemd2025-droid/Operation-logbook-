@@ -3,968 +3,1236 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Power Plant Digital Logbook</title>
+<title>Power Plant Digital Logbook — Unit 6</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* ── STATUS COLORS ── */
-.status-normal  { background:#DCFCE7; color:#166534; font-weight:600; }
-.status-caution { background:#FEF9C3; color:#854D0E; font-weight:600; }
-.status-warning { background:#FED7AA; color:#9A3412; font-weight:600; }
-.status-alarm   { background:#FECACA; color:#991B1B; font-weight:600; }
-.status-trip    { background:#DC2626; color:white;   font-weight:700; animation:blink 1s infinite; }
-@keyframes blink { 50%{opacity:0.5} }
-.remark-required { border:2px solid #DC2626 !important; background:#FFF5F5; }
-.group-header td { background:#1E293B; color:white; font-weight:600; padding:8px 12px; font-size:13px; }
+/* STATUS COLORS */
+.s-normal  { background:#DCFCE7; color:#166534; font-weight:600; }
+.s-caution { background:#FEF9C3; color:#854D0E; font-weight:600; }
+.s-warning { background:#FED7AA; color:#9A3412; font-weight:600; }
+.s-alarm   { background:#FECACA; color:#991B1B; font-weight:700; }
+.s-trip    { background:#DC2626; color:white;   font-weight:700; animation:blink 1s infinite; }
+@keyframes blink { 50%{opacity:0.55} }
+
+/* GLASS CARD */
+.eq-card {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1.5px 6px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.eq-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* CARD HEADER COLORS — vivid solid for contrast */
+.ch-red    { background:linear-gradient(135deg,#EF4444,#DC2626); color:white; }
+.ch-blue   { background:linear-gradient(135deg,#3B82F6,#2563EB); color:white; }
+.ch-cyan   { background:linear-gradient(135deg,#06B6D4,#0891B2); color:white; }
+.ch-green  { background:linear-gradient(135deg,#22C55E,#16A34A); color:white; }
+.ch-amber  { background:linear-gradient(135deg,#F59E0B,#D97706); color:white; }
+.ch-violet { background:linear-gradient(135deg,#8B5CF6,#7C3AED); color:white; }
+.ch-teal   { background:linear-gradient(135deg,#14B8A6,#0D9488); color:white; }
+.ch-indigo { background:linear-gradient(135deg,#6366F1,#4F46E5); color:white; }
+.ch-slate  { background:linear-gradient(135deg,#475569,#334155); color:white; }
+.ch-orange { background:linear-gradient(135deg,#F97316,#EA580C); color:white; }
+.ch-pink   { background:linear-gradient(135deg,#EC4899,#DB2777); color:white; }
+
+/* PAGE VISIBILITY */
 [data-page] { display:none; }
 [data-page].active { display:block; }
 #sidebar-overlay { display:none; }
+
+/* REMARK REQUIRED */
+.remark-req { border:2px solid #DC2626 !important; background:#FFF5F5; }
+
+/* CARD ROW HOVER */
+.param-row:hover { background:#F8FAFC; }
+
+/* VALUE INPUT */
+.val-input {
+  width:80px; padding:4px 6px; border:1px solid #D1D5DB;
+  border-radius:6px; text-align:center; font-size:13px;
+  transition: border-color 0.15s;
+}
+.val-input:focus { outline:none; border-color:#3B82F6; box-shadow:0 0 0 2px #BFDBFE; }
+
+/* STATUS PILL */
+.status-pill {
+  display:inline-block; padding:2px 8px; border-radius:999px;
+  font-size:11px; font-weight:600; min-width:60px; text-align:center;
+}
+
+/* SAVED TICK */
+.saved-tick { color:#16A34A; font-size:16px; }
+.unsaved-tick { color:#D1D5DB; font-size:16px; }
+
+/* TAB ACTIVE */
+.tab-active { background:#2563EB; color:white; }
+.tab-inactive { background:#F1F5F9; color:#475569; }
+.tab-inactive:hover { background:#E2E8F0; }
 </style>
 </head>
-<body class="bg-slate-100 font-sans">
+<body class="font-sans" style="background:linear-gradient(135deg,#e0e7ff 0%,#f0fdf4 50%,#fef3c7 100%);min-height:100vh;">
 
-<!-- ═══════════════════════════════════════
-     CONFIG — paste your GAS URL here
-═══════════════════════════════════════ -->
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzMdAP5xY6Sku1UUgvUtDnrs_siFvsVcwtIgGIbR2FUboAiz-0mBqO-W_ttHgT3XkMvRg/exec";
 </script>
 
-<!-- ═══════════════════════════════════════
-     APP SHELL
-═══════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+  EQUIPMENT CARD DATA
+══════════════════════════════════════ -->
+<script>
+const SG_CARDS = [
+  { id:"boiler",   title:"Boiler",   icon:"🔥", color:"red",
+    params:[
+      {name:"Furnace Pr HI",  unit:"mmWC",   ah:75,  th:150, al:"",   tl:""},
+      {name:"Furnace Pr Low", unit:"mmWC",   ah:"",  th:"",  al:-50,  tl:-175},
+      {name:"Drum Level HI",  unit:"mm",     ah:125, th:225, al:"",   tl:""},
+      {name:"Drum Level Low", unit:"mm",     ah:"",  th:"",  al:-175, tl:-375},
+      {name:"Air Flow Low",   unit:"T/Hr",   ah:"",  th:"",  al:615,  tl:""},
+    ]},
+  { id:"id_fan_a", title:"ID Fan A", icon:"💨", color:"blue",
+    params:[
+      {name:"Fan Brg Temp",            unit:"°C",   ah:77,  th:82,  al:"", tl:""},
+      {name:"Motor Brg Temp",          unit:"°C",   ah:95,  th:100, al:"", tl:""},
+      {name:"Motor & Exciter Wdg Temp",unit:"°C",   ah:120, th:125, al:"", tl:""},
+      {name:"Fan Vibration",           unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration",         unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+    ]},
+  { id:"id_fan_b", title:"ID Fan B", icon:"💨", color:"blue",
+    params:[
+      {name:"Fan Brg Temp",            unit:"°C",   ah:77,  th:82,  al:"", tl:""},
+      {name:"Motor Brg Temp",          unit:"°C",   ah:95,  th:100, al:"", tl:""},
+      {name:"Motor & Exciter Wdg Temp",unit:"°C",   ah:120, th:125, al:"", tl:""},
+      {name:"Fan Vibration",           unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration",         unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+    ]},
+  { id:"fd_fan_a", title:"FD Fan A", icon:"🌬️", color:"cyan",
+    params:[
+      {name:"Fan Brg Temp",    unit:"°C",   ah:90,  th:110, al:"", tl:""},
+      {name:"Motor Brg Temp",  unit:"°C",   ah:95,  th:100, al:"", tl:""},
+      {name:"Motor Wdg Temp",  unit:"°C",   ah:125, th:130, al:"", tl:""},
+      {name:"Fan Vibration",   unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration", unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+    ]},
+  { id:"fd_fan_b", title:"FD Fan B", icon:"🌬️", color:"cyan",
+    params:[
+      {name:"Fan Brg Temp",    unit:"°C",   ah:90,  th:110, al:"", tl:""},
+      {name:"Motor Brg Temp",  unit:"°C",   ah:95,  th:100, al:"", tl:""},
+      {name:"Motor Wdg Temp",  unit:"°C",   ah:125, th:130, al:"", tl:""},
+      {name:"Fan Vibration",   unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration", unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+    ]},
+  { id:"pa_fan_a", title:"PA Fan A", icon:"🌀", color:"violet",
+    params:[
+      {name:"Fan Brg Temp",    unit:"°C",   ah:90,  th:110, al:"", tl:""},
+      {name:"Motor Brg Temp",  unit:"°C",   ah:135, th:140, al:"", tl:""},
+      {name:"Motor Wdg Temp",  unit:"°C",   ah:135, th:140, al:"", tl:""},
+      {name:"Fan Vibration",   unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration", unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+    ]},
+  { id:"pa_fan_b", title:"PA Fan B", icon:"🌀", color:"violet",
+    params:[
+      {name:"Fan Brg Temp",    unit:"°C",   ah:90,  th:110, al:"", tl:""},
+      {name:"Motor Brg Temp",  unit:"°C",   ah:135, th:140, al:"", tl:""},
+      {name:"Motor Wdg Temp",  unit:"°C",   ah:135, th:140, al:"", tl:""},
+      {name:"Fan Vibration",   unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration", unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+    ]},
+  { id:"mill", title:"Mill", icon:"⚙️", color:"amber",
+    params:[
+      {name:"Seal Air Hdr/Bowl DP Low", unit:"mmWC",   ah:"",  th:"",  al:200, tl:""},
+      {name:"Mill Thrust Pad Temp",     unit:"°C",     ah:85,  th:"",  al:"",  tl:""},
+      {name:"Mill Motor Brg Temp",      unit:"°C",     ah:90,  th:"",  al:"",  tl:""},
+      {name:"Motor Winding Temp",       unit:"°C",     ah:120, th:130, al:"",  tl:""},
+      {name:"Shaft Brg Temp",           unit:"°C",     ah:85,  th:"",  al:"",  tl:""},
+      {name:"Lub Oil Pressure Low",     unit:"kg/cm²", ah:"",  th:"",  al:1.2, tl:0.8},
+      {name:"Lub Oil Temp High",        unit:"°C",     ah:65,  th:"",  al:"",  tl:""},
+      {name:"Lub Oil Flow Low",         unit:"",       ah:118, th:105, al:"",  tl:""},
+    ]},
+  { id:"bcw", title:"BCW", icon:"💧", color:"teal",
+    params:[
+      {name:"Motor Cavity Temp High", unit:"°C", ah:60, th:65, al:"", tl:""},
+    ]},
+];
+
+const TG_CARDS = [
+  { id:"mft", title:"MFT", icon:"⚡", color:"red",
+    params:[
+      {name:"HP Exhaust Steam Temp",       unit:"°C",     ah:480,  th:500,  al:"",  tl:""},
+      {name:"HP Out CSG Top/Bot DT",       unit:"°C",     ah:90,   th:100,  al:"",  tl:""},
+      {name:"IP Out Front CSG Top/Bot DT", unit:"°C",     ah:30,   th:45,   al:"",  tl:""},
+      {name:"IP Out Rear Top/Bot DT",      unit:"°C",     ah:30,   th:45,   al:"",  tl:""},
+      {name:"Cold Gas Temp Aft H2 Clr",    unit:"°C",     ah:55,   th:60,   al:"",  tl:""},
+      {name:"PW Flow Stator WDG",          unit:"",       ah:54,   th:48,   al:"",  tl:""},
+      {name:"PW Flow Thru Bushing",        unit:"",       ah:1.4,  th:1.33, al:"",  tl:""},
+      {name:"PW Temp After Cooler",        unit:"°C",     ah:55,   th:60,   al:"",  tl:""},
+      {name:"Lube Oil PR Disc",            unit:"kg/cm²", ah:"",   th:"",   al:2.4, tl:2.1},
+      {name:"Axial Shift",                 unit:"mm",     ah:0.5,  th:1,    al:"",  tl:""},
+      {name:"Cond PR",                     unit:"kg/cm²", ah:0.2,  th:0.3,  al:"",  tl:""},
+      {name:"Seal Oil Temp Aft Clr",       unit:"°C",     ah:50,   th:55,   al:"",  tl:""},
+      {name:"Hot Air Temp Aft Exciter",    unit:"°C",     ah:75,   th:80,   al:"",  tl:""},
+      {name:"TG Shaft Vib (Max)",          unit:"Micron", ah:200,  th:300,  al:"",  tl:""},
+      {name:"MS Temperature",              unit:"°C",     ah:500,  th:"",   al:480, tl:""},
+      {name:"MOT Level",                   unit:"mm",     ah:1000, th:1050, al:"",  tl:""},
+      {name:"TG Bearing Metal Temp",       unit:"°C",     ah:110,  th:130,  al:"",  tl:""},
+    ]},
+  { id:"tdbfp_a", title:"TDBFP A", icon:"🔧", color:"blue",
+    params:[
+      {name:"Lub Oil Hdr PR",        unit:"kg/cm²", ah:"",  th:"",  al:1.5, tl:1.1},
+      {name:"Governing Oil PR",      unit:"kg/cm²", ah:"",  th:"",  al:6.5, tl:4.5},
+      {name:"Axial Displacement",    unit:"mm",     ah:0.5, th:0.7, al:"",  tl:""},
+      {name:"Turbine Brg Vibration", unit:"Micron", ah:46,  th:70,  al:"",  tl:""},
+      {name:"Exhaust Steam Temp",    unit:"°C",     ah:85,  th:120, al:"",  tl:""},
+      {name:"Exhaust Steam PR",      unit:"kg/cm²", ah:0.4, th:0.6, al:"",  tl:""},
+      {name:"Bearing Temperature",   unit:"°C",     ah:100, th:105, al:"",  tl:""},
+      {name:"Deaerator Level",       unit:"mm",     ah:20,  th:"",  al:"",  tl:-990},
+    ]},
+  { id:"tdbfp_b", title:"TDBFP B", icon:"🔧", color:"blue",
+    params:[
+      {name:"Lub Oil Hdr PR",        unit:"kg/cm²", ah:"",  th:"",  al:1.5, tl:1.1},
+      {name:"Governing Oil PR",      unit:"kg/cm²", ah:"",  th:"",  al:6.5, tl:4.5},
+      {name:"Axial Displacement",    unit:"mm",     ah:0.5, th:0.7, al:"",  tl:""},
+      {name:"Turbine Brg Vibration", unit:"Micron", ah:46,  th:70,  al:"",  tl:""},
+      {name:"Exhaust Steam Temp",    unit:"°C",     ah:85,  th:120, al:"",  tl:""},
+      {name:"Exhaust Steam PR",      unit:"kg/cm²", ah:0.4, th:0.6, al:"",  tl:""},
+      {name:"Bearing Temperature",   unit:"°C",     ah:100, th:105, al:"",  tl:""},
+    ]},
+  { id:"mdbfp", title:"MDBFP", icon:"⚙️", color:"green",
+    params:[
+      {name:"Working Oil PR Low",     unit:"kg/cm²", ah:"",  th:"",  al:2.5, tl:2.2},
+      {name:"Working Oil Temp",       unit:"°C",     ah:110, th:130, al:"",  tl:""},
+      {name:"Hydro Coupling Brg Temp",unit:"°C",     ah:90,  th:95,  al:"",  tl:""},
+      {name:"Thrust Brg Temp",        unit:"°C",     ah:100, th:105, al:"",  tl:""},
+      {name:"Motor Brg Temp",         unit:"°C",     ah:85,  th:90,  al:"",  tl:""},
+      {name:"Motor Winding Temp",     unit:"°C",     ah:125, th:130, al:"",  tl:""},
+      {name:"BFP Suction Flow",       unit:"",       ah:200, th:"",  al:100, tl:""},
+      {name:"BFP Pump Vibration",     unit:"mm/s",   ah:11,  th:18,  al:"",  tl:""},
+      {name:"BFP Motor Vibration",    unit:"mm/s",   ah:4.5, th:7,   al:"",  tl:""},
+      {name:"Suction & Discharge DT", unit:"°C",     ah:10,  th:15,  al:"",  tl:""},
+      {name:"Lub Oil PR Low",         unit:"kg/cm²", ah:"",  th:"",  al:1.0, tl:0.8},
+      {name:"Lub Oil Temp High",      unit:"°C",     ah:55,  th:60,  al:"",  tl:""},
+    ]},
+  { id:"cep_a", title:"CEP A", icon:"💧", color:"cyan",
+    params:[
+      {name:"Motor Winding Temp",   unit:"°C",     ah:110, th:130, al:"",   tl:""},
+      {name:"CEP Thrust Brg Temp",  unit:"°C",     ah:95,  th:105, al:"",   tl:""},
+      {name:"CEP Motor Brg Temp",   unit:"°C",     ah:80,  th:90,  al:"",   tl:""},
+      {name:"CEP Discharge PR Low", unit:"kg/cm²", ah:"",  th:"",  al:22,   tl:20},
+      {name:"Discharge Flow Low",   unit:"",       ah:"",  th:"",  al:350,  tl:300},
+      {name:"Hot Well Level",       unit:"mm",     ah:"",  th:"",  al:-560, tl:-720},
+    ]},
+  { id:"cep_b", title:"CEP B", icon:"💧", color:"cyan",
+    params:[
+      {name:"Motor Winding Temp",   unit:"°C",     ah:110, th:130, al:"",  tl:""},
+      {name:"CEP Thrust Brg Temp",  unit:"°C",     ah:95,  th:105, al:"",  tl:""},
+      {name:"CEP Motor Brg Temp",   unit:"°C",     ah:80,  th:90,  al:"",  tl:""},
+      {name:"CEP Discharge PR Low", unit:"kg/cm²", ah:"",  th:"",  al:22,  tl:20},
+      {name:"Discharge Flow Low",   unit:"",       ah:"",  th:"",  al:350, tl:300},
+    ]},
+  { id:"tgecw_a", title:"TGECW A", icon:"🌊", color:"teal",
+    params:[
+      {name:"Suction Hdr PR Low",    unit:"kg/cm²", ah:"",  th:"",  al:2.0,  tl:1.2},
+      {name:"Discharge Hdr PR High", unit:"kg/cm²", ah:7.1, th:8.1, al:"",   tl:""},
+      {name:"Motor Brg Temp",        unit:"°C",     ah:80,  th:90,  al:"",   tl:""},
+      {name:"Motor Winding Temp",    unit:"°C",     ah:110, th:"",  al:"",   tl:""},
+      {name:"Motor Vibration",       unit:"mm/s",   ah:4.5, th:7.1, al:"",   tl:""},
+      {name:"Pump Vibration",        unit:"mm/s",   ah:6.3, th:12.6,al:"",   tl:""},
+    ]},
+  { id:"tgecw_b", title:"TGECW B", icon:"🌊", color:"teal",
+    params:[
+      {name:"Suction Hdr PR Low",    unit:"kg/cm²", ah:"",  th:"",  al:2.0,  tl:1.2},
+      {name:"Discharge Hdr PR High", unit:"kg/cm²", ah:7.1, th:8.1, al:"",   tl:""},
+      {name:"Motor Brg Temp",        unit:"°C",     ah:80,  th:90,  al:"",   tl:""},
+      {name:"Motor Winding Temp",    unit:"°C",     ah:110, th:"",  al:"",   tl:""},
+      {name:"Motor Vibration",       unit:"mm/s",   ah:4.5, th:7.1, al:"",   tl:""},
+      {name:"Pump Vibration",        unit:"mm/s",   ah:6.3, th:12.6,al:"",   tl:""},
+    ]},
+  { id:"sgecw", title:"SGECW", icon:"🌊", color:"teal",
+    params:[
+      {name:"Suction Hdr PR Low",    unit:"kg/cm²", ah:"",  th:"",  al:1.76, tl:1.5},
+      {name:"Discharge Hdr PR High", unit:"kg/cm²", ah:8.0, th:8.5, al:"",   tl:""},
+      {name:"Motor Brg Temp",        unit:"°C",     ah:80,  th:90,  al:"",   tl:""},
+      {name:"Motor Winding Temp",    unit:"°C",     ah:110, th:"",  al:"",   tl:""},
+      {name:"Motor Vibration",       unit:"mm/s",   ah:4.5, th:7.1, al:"",   tl:""},
+      {name:"Pump Vibration",        unit:"mm/s",   ah:6.3, th:12.6,al:"",   tl:""},
+    ]},
+  { id:"acw", title:"ACW", icon:"🌊", color:"indigo",
+    params:[
+      {name:"Suction Hdr PR Low",    unit:"kg/cm²", ah:"",  th:"",  al:1.76, tl:1.5},
+      {name:"Discharge Hdr PR High", unit:"kg/cm²", ah:4.0, th:4.7, al:"",   tl:""},
+      {name:"Motor Brg Temp",        unit:"°C",     ah:80,  th:90,  al:"",   tl:""},
+      {name:"Motor Winding Temp",    unit:"°C",     ah:110, th:130, al:"",   tl:""},
+      {name:"Motor Vibration",       unit:"mm/s",   ah:4.5, th:7.1, al:"",   tl:""},
+      {name:"Pump Vibration",        unit:"mm/s",   ah:6.3, th:12.6,al:"",   tl:""},
+    ]},
+  { id:"others", title:"Others", icon:"📦", color:"slate",
+    params:[
+      {name:"ECW Tank Level",            unit:"mm", ah:1000, th:"",  al:440,  tl:""},
+      {name:"BFP A Lube Oil Tank Level", unit:"mm", ah:"",   th:"",  al:1100, tl:""},
+      {name:"BFP B Lube Oil Tank Level", unit:"mm", ah:"",   th:"",  al:1100, tl:""},
+      {name:"PW Tank Level",             unit:"",   ah:150,  th:"",  al:100,  tl:""},
+      {name:"CW Forebay Level",          unit:"mm", ah:"",   th:"",  al:7100, tl:6750},
+    ]},
+];
+</script>
+
+<!-- ══════════════════════════════════════
+  APP
+══════════════════════════════════════ -->
 <div id="app">
 
-  <!-- LOGIN PAGE -->
-  <div data-page="login" class="active min-h-screen flex fixed inset-0 z-50 bg-white">
-    <div class="hidden lg:flex w-1/2 bg-blue-700 text-white items-center justify-center">
-      <div class="text-center px-12">
-        <div class="text-6xl mb-6">⚡</div>
-        <h1 class="text-5xl font-bold mb-4">Power Plant</h1>
-        <h2 class="text-3xl font-light">Digital Shift Logbook</h2>
-        <p class="mt-4 opacity-80">SG &amp; TG Operations Monitoring</p>
-        <p class="mt-2 text-sm opacity-60">Unit 1 – Unit 6</p>
-      </div>
-    </div>
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6">
-      <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
-        <h2 class="text-3xl font-bold mb-1">Welcome</h2>
-        <p class="text-gray-500 mb-8">Login to continue</p>
-        <label class="text-sm font-medium text-gray-600 block mb-1">Username</label>
-        <input id="login-username" type="text" placeholder="Enter username"
-          onkeydown="if(event.key==='Enter')doLogin()"
-          class="w-full border rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <label class="text-sm font-medium text-gray-600 block mb-1">Password</label>
-        <input id="login-password" type="password" placeholder="Enter password"
-          onkeydown="if(event.key==='Enter')doLogin()"
-          class="w-full border rounded-lg p-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <button id="login-btn" onclick="doLogin()"
-          class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold transition">
-          Login
-        </button>
-        <div id="login-error" class="text-red-500 mt-4 text-sm hidden text-center"></div>
-        <div id="login-loading" class="text-blue-500 mt-4 text-sm hidden text-center">⏳ Logging in…</div>
-      </div>
+<!-- LOGIN -->
+<div data-page="login" class="active min-h-screen flex fixed inset-0 z-50 bg-white">
+  <div class="hidden lg:flex w-1/2 bg-blue-700 text-white items-center justify-center">
+    <div class="text-center px-12">
+      <div class="text-6xl mb-6">⚡</div>
+      <h1 class="text-5xl font-bold mb-3">Power Plant</h1>
+      <h2 class="text-3xl font-light">Digital Shift Logbook</h2>
+      <p class="mt-4 opacity-80">SG &amp; TG Operations Monitoring</p>
+      <p class="mt-2 text-sm opacity-60">Unit 1 – Unit 6</p>
     </div>
   </div>
-
-  <!-- MAIN LAYOUT (shown after login) -->
-  <div id="main-layout" class="hidden">
-
-    <!-- Top Header -->
-    <header class="bg-white shadow sticky top-0 z-50">
-      <div class="px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-          <button onclick="toggleSidebar()" class="lg:hidden text-gray-600 text-xl">☰</button>
-          <span class="font-bold text-blue-700">⚡ Power Plant Logbook</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <span id="header-user" class="text-sm text-gray-600 hidden md:block"></span>
-          <span id="header-role" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full hidden md:block"></span>
-          <button onclick="logout()" class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-sm hover:bg-red-200">Logout</button>
-        </div>
-      </div>
-    </header>
-
-    <div class="flex">
-
-      <!-- Sidebar -->
-      <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden" onclick="toggleSidebar()"></div>
-      <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-white border-r z-50 lg:z-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-200 pt-16 lg:pt-0">
-        <div class="p-4 border-b">
-          <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">Navigation</div>
-        </div>
-        <nav class="p-2">
-          <button onclick="showPage('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center gap-3 text-sm font-medium text-gray-700">
-            📊 Dashboard
-          </button>
-          <button onclick="showPage('shift-entry')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center gap-3 text-sm font-medium text-gray-700">
-            📝 Shift Entry
-          </button>
-          <div id="nav-si" class="hidden">
-            <button onclick="showPage('approvals')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center gap-3 text-sm font-medium text-gray-700">
-              ✅ Approvals
-            </button>
-          </div>
-          <div id="nav-admin" class="hidden">
-            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase tracking-wider">Admin</div>
-            <button onclick="showPage('admin-users')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center gap-3 text-sm font-medium text-gray-700">
-              👥 Users
-            </button>
-            <button onclick="showPage('admin-parameters')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center gap-3 text-sm font-medium text-gray-700">
-              ⚙️ Parameters
-            </button>
-          </div>
-        </nav>
-      </aside>
-
-      <!-- Page Content -->
-      <main class="flex-1 min-h-screen p-4 lg:p-6 overflow-auto">
-
-        <!-- DASHBOARD -->
-        <div data-page="dashboard">
-          <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow p-5">
-              <div class="text-gray-500 text-sm">Critical Alarms</div>
-              <div id="db-alarms" class="text-3xl font-bold text-red-600 mt-1">--</div>
-            </div>
-            <div class="bg-white rounded-xl shadow p-5">
-              <div class="text-gray-500 text-sm">Trips Today</div>
-              <div id="db-trips" class="text-3xl font-bold text-orange-600 mt-1">--</div>
-            </div>
-            <div class="bg-white rounded-xl shadow p-5">
-              <div class="text-gray-500 text-sm">Pending Approvals</div>
-              <div id="db-approvals" class="text-3xl font-bold text-yellow-600 mt-1">--</div>
-            </div>
-            <div class="bg-white rounded-xl shadow p-5">
-              <div class="text-gray-500 text-sm">Today's Entries</div>
-              <div id="db-entries" class="text-3xl font-bold text-blue-600 mt-1">--</div>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl shadow p-5">
-            <h2 class="font-semibold mb-3">Quick Actions</h2>
-            <div class="flex flex-wrap gap-3">
-              <button onclick="showPage('shift-entry')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">📝 Enter Shift Data</button>
-              <button onclick="loadDashboard()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">🔄 Refresh</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- SHIFT ENTRY -->
-        <div data-page="shift-entry">
-          <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
-            <div>
-              <h1 class="text-2xl font-bold">Shift Log Entry</h1>
-              <div class="text-sm text-gray-500">
-                Unit: <span id="se-unit-label" class="font-semibold text-blue-700">—</span> |
-                System: <span id="se-system-label" class="font-semibold text-blue-700">—</span>
-              </div>
-            </div>
-            <div class="flex gap-2 flex-wrap items-center">
-              <span id="se-status-msg" class="text-xs px-3 py-1 rounded-lg hidden"></span>
-              <span id="se-shift-badge" class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">Not Loaded</span>
-              <button onclick="saveDraft()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">💾 Save Draft</button>
-              <button onclick="confirmSubmit()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">✅ Submit Shift</button>
-            </div>
-          </div>
-
-          <!-- Filters -->
-          <div class="bg-white rounded-xl shadow p-4 mb-4">
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-              <input type="date" id="se-date" class="border rounded-lg p-2 text-sm">
-              <select id="se-shift" class="border rounded-lg p-2 text-sm">
-                <option value="A">A Shift</option>
-                <option value="B">B Shift</option>
-                <option value="C">C Shift</option>
-              </select>
-              <select id="se-unit" class="border rounded-lg p-2 text-sm"></select>
-              <select id="se-system" class="border rounded-lg p-2 text-sm">
-                <option value="SG">SG</option>
-                <option value="TG">TG</option>
-              </select>
-              <input id="se-search" class="border rounded-lg p-2 text-sm" placeholder="🔍 Search"
-                oninput="filterShiftTable(this.value)">
-              <button onclick="loadShiftEntry()" class="bg-slate-700 text-white rounded-lg text-sm hover:bg-slate-800 px-3">Load</button>
-            </div>
-            <div class="mt-2 text-xs text-gray-400" id="se-entry-count"></div>
-          </div>
-
-          <!-- Parameter Table -->
-          <div class="bg-white rounded-xl shadow overflow-auto">
-            <div id="se-loading" class="hidden p-10 text-center text-gray-400 text-sm">⏳ Loading parameters…</div>
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="bg-slate-800 text-white">
-                  <th class="p-3 text-left w-28">Group</th>
-                  <th class="p-3 text-left">Parameter</th>
-                  <th class="p-3 w-14">Unit</th>
-                  <th class="p-3 w-14">AH</th>
-                  <th class="p-3 w-14">TH</th>
-                  <th class="p-3 w-14">AL</th>
-                  <th class="p-3 w-14">TL</th>
-                  <th class="p-3 w-24">Value</th>
-                  <th class="p-3 w-24">Status</th>
-                  <th class="p-3">Remark</th>
-                  <th class="p-3 w-12">✓</th>
-                </tr>
-              </thead>
-              <tbody id="se-body">
-                <tr><td colspan="11" class="text-center p-8 text-gray-400">Select filters and click Load</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- APPROVALS -->
-        <div data-page="approvals">
-          <h1 class="text-2xl font-bold mb-6">Pending Approvals</h1>
-          <div class="bg-white rounded-xl shadow overflow-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-slate-800 text-white">
-                <tr>
-                  <th class="p-3 text-left">Date</th>
-                  <th class="p-3 text-left">Shift</th>
-                  <th class="p-3 text-left">Unit</th>
-                  <th class="p-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="approvals-body">
-                <tr><td colspan="4" class="text-center p-8 text-gray-400">Loading…</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ADMIN USERS -->
-        <div data-page="admin-users">
-          <h1 class="text-2xl font-bold mb-4">User Management</h1>
-          <div class="bg-white rounded-xl shadow p-6 mb-6">
-            <h2 class="font-semibold mb-4">Create User</h2>
-            <div class="grid md:grid-cols-3 gap-4">
-              <input id="new-username" placeholder="Username" class="border rounded-lg p-3 text-sm">
-              <input id="new-fullname" placeholder="Full Name" class="border rounded-lg p-3 text-sm">
-              <input id="new-password" type="password" placeholder="Password" class="border rounded-lg p-3 text-sm">
-              <select id="new-role" class="border rounded-lg p-3 text-sm">
-                <option value="Operator">Operator</option>
-                <option value="Shift Incharge">Shift Incharge</option>
-                <option value="Admin">Admin</option>
-              </select>
-              <select id="new-unit-access" multiple class="border rounded-lg p-3 text-sm h-28">
-                <option value="ALL">ALL</option>
-                <option value="U1">Unit-1</option>
-                <option value="U2">Unit-2</option>
-                <option value="U3">Unit-3</option>
-                <option value="U4">Unit-4</option>
-                <option value="U5">Unit-5</option>
-                <option value="U6">Unit-6</option>
-              </select>
-              <div class="flex items-end">
-                <button onclick="createUser()" class="bg-blue-600 text-white px-6 py-3 rounded-lg w-full hover:bg-blue-700">Create User</button>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl shadow overflow-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-slate-800 text-white">
-                <tr>
-                  <th class="p-3 text-left">Username</th>
-                  <th class="p-3 text-left">Name</th>
-                  <th class="p-3 text-left">Role</th>
-                  <th class="p-3 text-left">Access</th>
-                  <th class="p-3 text-center">Status</th>
-                  <th class="p-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="users-body">
-                <tr><td colspan="6" class="text-center p-8 text-gray-400">Loading…</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ADMIN PARAMETERS -->
-        <div data-page="admin-parameters">
-          <h1 class="text-2xl font-bold mb-4">Parameter Master</h1>
-          <div class="bg-white rounded-xl shadow p-4 mb-4">
-            <div class="grid md:grid-cols-4 gap-4">
-              <select id="param-unit" class="border rounded-lg p-3 text-sm">
-                <option value="U6">Unit 6</option>
-                <option value="U1">Unit 1</option>
-                <option value="U2">Unit 2</option>
-                <option value="U3">Unit 3</option>
-                <option value="U4">Unit 4</option>
-                <option value="U5">Unit 5</option>
-              </select>
-              <select id="param-system" class="border rounded-lg p-3 text-sm">
-                <option value="SG">SG</option>
-                <option value="TG">TG</option>
-              </select>
-              <button onclick="loadParameters()" class="bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 px-4">Load Parameters</button>
-              <button onclick="cloneParameters()" class="bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 px-4">Clone Unit</button>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl shadow overflow-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-slate-800 text-white">
-                <tr>
-                  <th class="p-3">Group</th>
-                  <th class="p-3">Parameter</th>
-                  <th class="p-3">Unit</th>
-                  <th class="p-3">AH</th>
-                  <th class="p-3">TH</th>
-                  <th class="p-3">AL</th>
-                  <th class="p-3">TL</th>
-                  <th class="p-3">Status</th>
-                  <th class="p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="params-body">
-                <tr><td colspan="9" class="text-center p-8 text-gray-400">Select unit and system, click Load</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </main>
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-6">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+      <h2 class="text-3xl font-bold mb-1">Welcome</h2>
+      <p class="text-gray-500 mb-8">Login to continue</p>
+      <label class="text-sm font-medium text-gray-600 block mb-1">Username</label>
+      <input id="login-username" type="text" placeholder="Enter username"
+        onkeydown="if(event.key==='Enter')doLogin()"
+        class="w-full border rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <label class="text-sm font-medium text-gray-600 block mb-1">Password</label>
+      <input id="login-password" type="password" placeholder="Enter password"
+        onkeydown="if(event.key==='Enter')doLogin()"
+        class="w-full border rounded-lg p-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <button id="login-btn" onclick="doLogin()"
+        class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold transition">Login</button>
+      <div id="login-error" class="text-red-500 mt-4 text-sm hidden text-center"></div>
+      <div id="login-loading" class="text-blue-500 mt-4 text-sm hidden text-center">⏳ Logging in…</div>
     </div>
   </div>
+</div>
 
-  <!-- SUBMIT MODAL -->
-  <div id="submit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
-      <h2 class="text-xl font-bold mb-2">Submit Shift?</h2>
-      <p class="text-gray-500 text-sm mb-4">Shift will move to Pending Approval and cannot be edited.</p>
-      <div id="submit-summary" class="bg-slate-50 rounded-lg p-4 text-sm mb-6"></div>
-      <div class="flex gap-3 justify-end">
-        <button onclick="closeModal()" class="px-5 py-2 border rounded-lg text-sm">Cancel</button>
-        <button onclick="submitShift()" class="px-5 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">Confirm Submit</button>
+<!-- MAIN LAYOUT -->
+<div id="main-layout" class="hidden">
+
+  <!-- Header -->
+  <header class="bg-white shadow sticky top-0 z-40">
+    <div class="px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 text-xl">☰</button>
+        <span class="font-bold text-blue-700 text-lg">⚡ Power Plant Logbook</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2">
+          <span id="hdr-shift-badge" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-full font-semibold"></span>
+          <span id="hdr-user" class="text-sm text-gray-600"></span>
+          <span id="hdr-role" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"></span>
+        </div>
+        <button onclick="logout()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-lg text-sm hover:bg-red-100">Logout</button>
       </div>
     </div>
+  </header>
+
+  <div class="flex">
+
+    <!-- Sidebar overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-30 lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-60 bg-white border-r z-40 lg:z-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-200 pt-14 lg:pt-0 flex flex-col">
+      <div class="p-3 border-b bg-slate-50">
+        <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Navigation</div>
+      </div>
+      <nav class="p-2 flex-1 overflow-y-auto">
+        <button onclick="showPage('dashboard')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📊 Dashboard</button>
+        <button onclick="showPage('shift-entry')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📝 Shift Entry</button>
+        <div id="nav-si" class="hidden">
+          <button onclick="showPage('approvals')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">✅ Approvals</button>
+        </div>
+        <div id="nav-admin" class="hidden">
+          <div class="px-3 pt-3 pb-1 text-xs text-gray-400 uppercase tracking-wider font-semibold">Admin</div>
+          <button onclick="showPage('admin-users')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">👥 Users</button>
+          <button onclick="showPage('admin-parameters')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">⚙️ Parameters</button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-h-screen overflow-auto">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div data-page="dashboard" class="p-4 lg:p-6">
+        <h1 class="text-2xl font-bold mb-5">Dashboard</h1>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
+            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Critical Alarms</div>
+            <div id="db-alarms" class="text-3xl font-bold text-red-600">--</div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-orange-500">
+            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Trips Today</div>
+            <div id="db-trips" class="text-3xl font-bold text-orange-600">--</div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500">
+            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Pending Approvals</div>
+            <div id="db-approvals" class="text-3xl font-bold text-yellow-600">--</div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
+            <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Today's Entries</div>
+            <div id="db-entries" class="text-3xl font-bold text-blue-600">--</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-5">
+          <h2 class="font-semibold mb-3 text-gray-700">Quick Actions</h2>
+          <div class="flex flex-wrap gap-3">
+            <button onclick="showPage('shift-entry')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">📝 Enter Shift Data</button>
+            <button onclick="loadDashboard()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">🔄 Refresh</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SHIFT ENTRY ══ -->
+      <div data-page="shift-entry" class="p-4 lg:p-6">
+
+        <!-- Page header -->
+        <div class="flex justify-between items-start mb-4 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-bold">Shift Log Entry</h1>
+            <div class="text-sm text-gray-500 mt-0.5">
+              Unit: <span id="se-unit-lbl" class="font-semibold text-blue-700">—</span>
+              &nbsp;|&nbsp; System: <span id="se-sys-lbl" class="font-semibold text-blue-700">—</span>
+              &nbsp;|&nbsp; <span id="se-shift-badge" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold">Not Loaded</span>
+            </div>
+          </div>
+          <div class="flex gap-2 flex-wrap items-center">
+            <span id="se-msg" class="text-xs px-3 py-1 rounded-lg hidden"></span>
+            <span id="se-count" class="text-xs text-gray-400"></span>
+            <button onclick="saveDraft()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">💾 Save Draft</button>
+            <button onclick="confirmSubmit()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">✅ Submit Shift</button>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="bg-white rounded-xl shadow p-4 mb-5">
+          <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <input type="date" id="se-date" class="border rounded-lg p-2 text-sm col-span-1">
+            <select id="se-shift" class="border rounded-lg p-2 text-sm">
+              <option value="A">A Shift (06-14)</option>
+              <option value="B">B Shift (14-22)</option>
+              <option value="C">C Shift (22-06)</option>
+            </select>
+            <select id="se-unit" class="border rounded-lg p-2 text-sm"></select>
+            <select id="se-system" class="border rounded-lg p-2 text-sm">
+              <option value="SG">SG — Steam Generator</option>
+              <option value="TG">TG — Turbine Generator</option>
+            </select>
+            <input id="se-search" class="border rounded-lg p-2 text-sm col-span-1" placeholder="🔍 Search equipment"
+              oninput="filterCards(this.value)">
+            <button onclick="loadShiftEntry()" class="bg-slate-700 text-white rounded-lg text-sm hover:bg-slate-800 px-3 col-span-1">Load Parameters</button>
+          </div>
+        </div>
+
+        <!-- Card grid -->
+        <div id="se-loading" class="hidden bg-white rounded-xl shadow p-12 text-center text-gray-400">
+          ⏳ Loading parameters from database…
+        </div>
+        <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+        <!-- Color Legend -->
+        <div class="mt-6 bg-white rounded-xl shadow p-4">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Status Color Reference</div>
+          <div class="flex flex-wrap gap-3 items-center">
+            <div class="flex items-center gap-2">
+              <span class="status-pill s-normal">NORMAL</span>
+              <span class="text-xs text-gray-500">Within safe range</span>
+            </div>
+            <div class="text-gray-300">→</div>
+            <div class="flex items-center gap-2">
+              <span class="status-pill s-caution">CAUTION</span>
+              <span class="text-xs text-gray-500">70% of alarm limit</span>
+            </div>
+            <div class="text-gray-300">→</div>
+            <div class="flex items-center gap-2">
+              <span class="status-pill s-warning">WARNING</span>
+              <span class="text-xs text-gray-500">90% of alarm limit</span>
+            </div>
+            <div class="text-gray-300">→</div>
+            <div class="flex items-center gap-2">
+              <span class="status-pill s-alarm">ALARM</span>
+              <span class="text-xs text-gray-500">Limit exceeded — remark mandatory</span>
+            </div>
+            <div class="text-gray-300">→</div>
+            <div class="flex items-center gap-2">
+              <span class="status-pill s-trip">TRIP</span>
+              <span class="text-xs text-gray-500">Trip limit exceeded — immediate action</span>
+            </div>
+          </div>
+          <div class="mt-2 text-xs text-gray-400">
+            <strong>Alarm</strong> column shows the alarm threshold (H = High, L = Low) &nbsp;|&nbsp;
+            <strong>Trip</strong> column shows the trip threshold — equipment shuts down if exceeded
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ APPROVALS ══ -->
+      <div data-page="approvals" class="p-4 lg:p-6">
+        <h1 class="text-2xl font-bold mb-5">Pending Approvals</h1>
+        <div class="bg-white rounded-xl shadow overflow-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="p-3 text-left">Date</th>
+                <th class="p-3 text-left">Shift</th>
+                <th class="p-3 text-left">Unit</th>
+                <th class="p-3 text-center">Status</th>
+                <th class="p-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="approvals-body">
+              <tr><td colspan="5" class="text-center p-8 text-gray-400">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN USERS ══ -->
+      <div data-page="admin-users" class="p-4 lg:p-6">
+        <h1 class="text-2xl font-bold mb-5">User Management</h1>
+        <div class="bg-white rounded-xl shadow p-6 mb-5">
+          <h2 class="font-semibold mb-4 text-gray-700">Create New User</h2>
+          <div class="grid md:grid-cols-3 gap-4">
+            <input id="new-username" placeholder="Username" class="border rounded-lg p-3 text-sm">
+            <input id="new-fullname" placeholder="Full Name" class="border rounded-lg p-3 text-sm">
+            <input id="new-password" type="password" placeholder="Password" class="border rounded-lg p-3 text-sm">
+            <select id="new-role" class="border rounded-lg p-3 text-sm">
+              <option value="Operator">Operator</option>
+              <option value="Shift Incharge">Shift Incharge</option>
+              <option value="Admin">Admin</option>
+            </select>
+            <select id="new-unit-access" multiple class="border rounded-lg p-3 text-sm h-28">
+              <option value="ALL">ALL Units</option>
+              <option value="U1">Unit 1</option><option value="U2">Unit 2</option>
+              <option value="U3">Unit 3</option><option value="U4">Unit 4</option>
+              <option value="U5">Unit 5</option><option value="U6">Unit 6</option>
+            </select>
+            <div class="flex items-end">
+              <button onclick="createUser()" class="bg-blue-600 text-white px-6 py-3 rounded-lg w-full hover:bg-blue-700 font-medium">Create User</button>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow overflow-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="p-3 text-left">Username</th><th class="p-3 text-left">Name</th>
+                <th class="p-3 text-left">Role</th><th class="p-3 text-left">Access</th>
+                <th class="p-3 text-center">Status</th><th class="p-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-body"><tr><td colspan="6" class="text-center p-8 text-gray-400">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN PARAMETERS ══ -->
+      <div data-page="admin-parameters" class="p-4 lg:p-6">
+        <h1 class="text-2xl font-bold mb-5">Parameter Master</h1>
+        <div class="bg-white rounded-xl shadow p-4 mb-5">
+          <div class="grid md:grid-cols-4 gap-4">
+            <select id="param-unit" class="border rounded-lg p-3 text-sm">
+              <option value="U6">Unit 6</option><option value="U1">Unit 1</option>
+              <option value="U2">Unit 2</option><option value="U3">Unit 3</option>
+              <option value="U4">Unit 4</option><option value="U5">Unit 5</option>
+            </select>
+            <select id="param-system" class="border rounded-lg p-3 text-sm">
+              <option value="SG">SG</option><option value="TG">TG</option>
+            </select>
+            <button onclick="loadParameters()" class="bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 px-4">Load Parameters</button>
+            <button onclick="cloneParameters()" class="bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 px-4">Clone Unit</button>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow overflow-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="p-3">Group</th><th class="p-3">Parameter</th><th class="p-3">Unit</th>
+                <th class="p-3">AH</th><th class="p-3">TH</th><th class="p-3">AL</th><th class="p-3">TL</th>
+                <th class="p-3">Status</th><th class="p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="params-body"><tr><td colspan="9" class="text-center p-8 text-gray-400">Select unit and system, click Load</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
   </div>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div id="submit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+    <h2 class="text-xl font-bold mb-2">Submit Shift?</h2>
+    <p class="text-gray-500 text-sm mb-4">Shift will move to Pending Approval and cannot be edited without re-opening.</p>
+    <div id="submit-summary" class="bg-slate-50 rounded-xl p-4 text-sm mb-6"></div>
+    <div class="flex gap-3 justify-end">
+      <button onclick="closeModal()" class="px-5 py-2 border rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+      <button onclick="doSubmitShift()" class="px-5 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 font-medium">Confirm Submit</button>
+    </div>
+  </div>
+</div>
 
 </div><!-- #app -->
 
-<!-- ═══════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+  JAVASCRIPT
+══════════════════════════════════════ -->
 <script>
-/********************************************************
-  STATE
-********************************************************/
-let CURRENT_USER  = null;
-let parameters    = [];
-let entryMap      = {};
-let shiftStatus   = "Draft";
+/******* STATE *******/
+let CURRENT_USER = null;
+let entryMap     = {};   // key: "cardId_paramIdx" → { logId, value, remark, alarmStatus }
+let shiftStatus  = "Draft";
+let currentSystem = "SG";
 
-/********************************************************
-  API — fetch wrapper
-********************************************************/
+/******* API *******/
 async function api(action, payload = {}) {
-  // GAS requires GET with encoded payload to avoid redirect issues
-  const data   = encodeURIComponent(JSON.stringify({ action, ...payload }));
-  const url    = GAS_URL + "?data=" + data;
-  const res    = await fetch(url, { redirect: "follow" });
-  const text   = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch(e) {
-    console.error("GAS response:", text.substring(0, 300));
-    throw new Error("Invalid response from server");
-  }
+  const data = encodeURIComponent(JSON.stringify({ action, ...payload }));
+  const res  = await fetch(GAS_URL + "?data=" + data, { redirect:"follow" });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { console.error("GAS response:", text.substring(0,300)); throw new Error("Server error"); }
 }
 
-/********************************************************
-  SESSION
-********************************************************/
-function saveSession(user) { localStorage.setItem("pp_user", JSON.stringify(user)); }
-function loadSession()     { const u = localStorage.getItem("pp_user"); return u ? JSON.parse(u) : null; }
-function clearSession()    { localStorage.removeItem("pp_user"); }
+/******* SESSION *******/
+function saveSession(u) { localStorage.setItem("pp_user", JSON.stringify(u)); }
+function loadSession()  { const u = localStorage.getItem("pp_user"); return u ? JSON.parse(u) : null; }
+function clearSession() { localStorage.removeItem("pp_user"); }
 
-/********************************************************
-  INIT
-********************************************************/
+/******* INIT *******/
 window.addEventListener("DOMContentLoaded", () => {
-  const user = loadSession();
-  if (user) {
-    CURRENT_USER = user;
-    bootApp();
-  }
-  // Set today's date
-  const today = new Date().toISOString().split("T")[0];
-  document.getElementById("se-date").value = today;
+  const u = loadSession();
+  if (u) { CURRENT_USER = u; bootApp(); }
+  document.getElementById("se-date").value = new Date().toISOString().split("T")[0];
   autoSelectShift();
 });
 
-/********************************************************
-  LOGIN
-********************************************************/
+/******* LOGIN *******/
 async function doLogin() {
   const username = document.getElementById("login-username").value.trim();
   const password = document.getElementById("login-password").value;
-
-  if (!username || !password) {
-    showLoginError("Please enter username and password");
-    return;
-  }
-
+  if (!username || !password) { showLoginErr("Enter username and password"); return; }
   document.getElementById("login-btn").disabled = true;
   document.getElementById("login-btn").textContent = "Logging in…";
   document.getElementById("login-error").classList.add("hidden");
   document.getElementById("login-loading").classList.remove("hidden");
-
   try {
-    const result = await api("login", { username, password });
-    if (result.success) {
-      CURRENT_USER = result;
-      saveSession(result);
-      bootApp();
-    } else {
-      showLoginError(result.message || "Invalid username or password");
-    }
-  } catch(err) {
-    showLoginError("Connection error: " + err.message);
-  } finally {
+    const r = await api("login", { username, password });
+    if (r.success) { CURRENT_USER = r; saveSession(r); bootApp(); }
+    else showLoginErr(r.message || "Invalid username or password");
+  } catch(e) { showLoginErr("Connection error: " + e.message); }
+  finally {
     document.getElementById("login-btn").disabled = false;
     document.getElementById("login-btn").textContent = "Login";
     document.getElementById("login-loading").classList.add("hidden");
   }
 }
-
-function showLoginError(msg) {
-  const el = document.getElementById("login-error");
-  el.textContent = "✗ " + msg;
-  el.classList.remove("hidden");
+function showLoginErr(m) {
+  const e = document.getElementById("login-error");
+  e.textContent = "✗ " + m; e.classList.remove("hidden");
 }
 
-/********************************************************
-  BOOT APP after login
-********************************************************/
+/******* BOOT *******/
 function bootApp() {
-  // Hide login page completely
-  const loginPage = document.querySelector("[data-page='login']");
-  loginPage.classList.remove("active");
-  loginPage.style.display = "none";
+  const lp = document.querySelector("[data-page='login']");
+  lp.classList.remove("active"); lp.style.display = "none";
   document.getElementById("main-layout").classList.remove("hidden");
-
-  // Set header
-  document.getElementById("header-user").textContent = CURRENT_USER.name;
-  document.getElementById("header-user").classList.remove("hidden");
-  document.getElementById("header-role").textContent = CURRENT_USER.role;
-  document.getElementById("header-role").classList.remove("hidden");
-
-  // Show role-based nav
+  document.getElementById("hdr-user").textContent = CURRENT_USER.name;
+  document.getElementById("hdr-role").textContent = CURRENT_USER.role;
+  if (CURRENT_USER.role === "Admin" || CURRENT_USER.role === "Shift Incharge") {
+    document.getElementById("nav-si").classList.remove("hidden");
+  }
   if (CURRENT_USER.role === "Admin") {
     document.getElementById("nav-admin").classList.remove("hidden");
-    document.getElementById("nav-si").classList.remove("hidden");
   }
-  if (CURRENT_USER.role === "Shift Incharge") {
-    document.getElementById("nav-si").classList.remove("hidden");
-  }
-
   // Populate unit dropdown
   const sel = document.getElementById("se-unit");
   sel.innerHTML = "";
   ["U1","U2","U3","U4","U5","U6"].forEach(u => {
     if (hasUnitAccess(u)) {
-      const opt = document.createElement("option");
-      opt.value = u; opt.textContent = "Unit " + u.replace("U","");
-      sel.appendChild(opt);
+      const o = document.createElement("option");
+      o.value = u; o.textContent = "Unit " + u.replace("U","");
+      sel.appendChild(o);
     }
   });
   if ([...sel.options].some(o => o.value === "U6")) sel.value = "U6";
-
   showPage("dashboard");
   loadDashboard();
 }
 
-/********************************************************
-  LOGOUT
-********************************************************/
+/******* LOGOUT *******/
 function logout() {
-  clearSession();
-  CURRENT_USER = null;
+  clearSession(); CURRENT_USER = null;
   document.getElementById("main-layout").classList.add("hidden");
-  const loginPage = document.querySelector("[data-page='login']");
-  loginPage.style.display = "";
-  loginPage.classList.add("active");
+  const lp = document.querySelector("[data-page='login']");
+  lp.style.display = ""; lp.classList.add("active");
   document.getElementById("login-username").value = "";
   document.getElementById("login-password").value = "";
   document.getElementById("login-error").classList.add("hidden");
 }
 
-/********************************************************
-  ROLE HELPERS
-********************************************************/
-function hasUnitAccess(unitId) {
+/******* HELPERS *******/
+function hasUnitAccess(uid) {
   if (!CURRENT_USER) return false;
   if (CURRENT_USER.role === "Admin") return true;
-  const access = Array.isArray(CURRENT_USER.unitAccess)
-    ? CURRENT_USER.unitAccess
-    : CURRENT_USER.unitAccess.split(",");
-  return access.includes("ALL") || access.includes(unitId);
+  const a = Array.isArray(CURRENT_USER.unitAccess)
+    ? CURRENT_USER.unitAccess : CURRENT_USER.unitAccess.split(",");
+  return a.includes("ALL") || a.includes(uid);
+}
+function autoSelectShift() {
+  const h = new Date().getHours();
+  document.getElementById("se-shift").value = h>=6&&h<14?"A":h>=14&&h<22?"B":"C";
 }
 
-/********************************************************
-  PAGE NAVIGATION
-********************************************************/
+/******* NAVIGATION *******/
 function showPage(page) {
-  document.querySelectorAll("[data-page]").forEach(el => el.classList.remove("active"));
-  const target = document.querySelector(`[data-page="${page}"]`);
-  if (target) target.classList.add("active");
+  document.querySelectorAll("[data-page]").forEach(e => e.classList.remove("active"));
+  const t = document.querySelector(`[data-page="${page}"]`);
+  if (t) t.classList.add("active");
   closeSidebar();
-
-  if (page === "approvals")        loadApprovals();
-  if (page === "admin-users")      loadUsers();
-  if (page === "admin-parameters") {} // manual load
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("bg-blue-50","text-blue-700","font-semibold"));
+  if (page==="approvals")        loadApprovals();
+  if (page==="admin-users")      loadUsers();
 }
-
-/********************************************************
-  SIDEBAR
-********************************************************/
 function toggleSidebar() {
   const sb = document.getElementById("sidebar");
   const ov = document.getElementById("sidebar-overlay");
-  const open = !sb.classList.contains("-translate-x-full") && window.innerWidth < 1024;
-  if (open) { sb.classList.add("-translate-x-full"); ov.style.display="none"; }
-  else       { sb.classList.remove("-translate-x-full"); ov.style.display="block"; }
+  const isOpen = !sb.classList.contains("-translate-x-full");
+  if (isOpen) { sb.classList.add("-translate-x-full"); ov.style.display="none"; }
+  else        { sb.classList.remove("-translate-x-full"); ov.style.display="block"; }
 }
 function closeSidebar() {
   document.getElementById("sidebar").classList.add("-translate-x-full");
-  document.getElementById("sidebar-overlay").style.display = "none";
+  document.getElementById("sidebar-overlay").style.display="none";
 }
 
-/********************************************************
-  AUTO SELECT SHIFT
-********************************************************/
-function autoSelectShift() {
-  const h = new Date().getHours();
-  const shift = h >= 6 && h < 14 ? "A" : h >= 14 && h < 22 ? "B" : "C";
-  const el = document.getElementById("se-shift");
-  if (el) el.value = shift;
-}
-
-/********************************************************
-  DASHBOARD
-********************************************************/
+/******* DASHBOARD *******/
 async function loadDashboard() {
-  const today = new Date().toISOString().split("T")[0];
-  const unitId = CURRENT_USER.role === "Admin" ? "U6"
+  const today  = new Date().toISOString().split("T")[0];
+  const unitId = CURRENT_USER.role==="Admin" ? "U6"
     : (Array.isArray(CURRENT_USER.unitAccess)
        ? CURRENT_USER.unitAccess[0]
        : CURRENT_USER.unitAccess.split(",")[0]);
-
   try {
-    const [alarmData, approvals] = await Promise.all([
-      api("getDailyAlarmSummary", { date: today, unitId }),
+    const [alarm, pend] = await Promise.all([
+      api("getDailyAlarmSummary",{date:today,unitId}),
       api("getPendingApprovals")
     ]);
-
-    const alarms = alarmData.alarm || 0;
-    const trips  = alarmData.trip  || 0;
-
-    document.getElementById("db-alarms").textContent    = alarms;
-    document.getElementById("db-trips").textContent     = trips;
-    document.getElementById("db-approvals").textContent = Array.isArray(approvals) ? approvals.length : 0;
-    document.getElementById("db-entries").textContent   = (alarmData.caution||0) + (alarmData.warning||0) + alarms + trips;
-
-  } catch(err) {
-    console.error("Dashboard error:", err);
-  }
+    document.getElementById("db-alarms").textContent    = alarm.alarm||0;
+    document.getElementById("db-trips").textContent     = alarm.trip||0;
+    document.getElementById("db-approvals").textContent = Array.isArray(pend)?pend.length:0;
+    document.getElementById("db-entries").textContent   = (alarm.caution||0)+(alarm.warning||0)+(alarm.alarm||0)+(alarm.trip||0);
+  } catch(e) { console.error("Dashboard:", e); }
 }
 
-/********************************************************
-  SHIFT ENTRY — LOAD
-********************************************************/
+/******* SHIFT ENTRY — LOAD *******/
 async function loadShiftEntry() {
   const date   = document.getElementById("se-date").value;
   const shift  = document.getElementById("se-shift").value;
   const unitId = document.getElementById("se-unit").value;
   const system = document.getElementById("se-system").value;
+  if (!date) { alert("Select a date"); return; }
 
-  if (!date) { alert("Please select a date"); return; }
-
-  document.getElementById("se-unit-label").textContent   = unitId;
-  document.getElementById("se-system-label").textContent = system;
+  currentSystem = system;
+  document.getElementById("se-unit-lbl").textContent = unitId;
+  document.getElementById("se-sys-lbl").textContent  = system;
   document.getElementById("se-loading").classList.remove("hidden");
-  document.getElementById("se-body").innerHTML = "";
+  document.getElementById("cards-container").innerHTML = "";
+
+  // Update header shift badge
+  const h = new Date().getHours();
+  document.getElementById("hdr-shift-badge").textContent =
+    `${unitId} | ${system} | ${shift} Shift | ${date}`;
 
   try {
-    const [paramResult, entries] = await Promise.all([
-      api("getParameters", { unitId, system }),
-      api("getShiftEntries", { date, shift, unitId, system })
+    // Load parameters AND existing entries in parallel
+    const [dbParams, entries] = await Promise.all([
+      api("getParameters", {unitId, system}),
+      api("getShiftEntries", {date, shift, unitId, system})
     ]);
 
-    if (!paramResult || paramResult.length === 0) {
-      document.getElementById("se-body").innerHTML =
-        `<tr><td colspan="11" class="text-center p-8 text-gray-400">No parameters found for ${unitId} / ${system}</td></tr>`;
-      return;
+    // Build parameterId cache from DB: "groupName|paramName" → parameterId
+    paramIdCache[unitId+"_"+system] = {};
+    if (dbParams && dbParams.length) {
+      dbParams.forEach(p => {
+        const key = p.groupName + "|" + p.parameterName;
+        paramIdCache[unitId+"_"+system][key] = p.parameterId;
+      });
     }
 
-    parameters = paramResult;
-    entryMap   = {};
-    entries.forEach(e => { entryMap[e.parameterId] = e; });
-    shiftStatus = entries.length > 0 ? (entries[0].status || "Draft") : "Draft";
+    // Build entry map keyed by parameterId
+    entryMap = {};
+    if (entries && entries.length) {
+      entries.forEach(e => { entryMap[e.parameterId] = e; });
+      shiftStatus = entries[0].status || "Draft";
+    } else {
+      shiftStatus = "Draft";
+    }
 
-    renderShiftTable();
+    const cards = system === "SG" ? SG_CARDS : TG_CARDS;
+    renderCards(cards, unitId, system, date, shift);
     updateShiftBadge();
+    updateEntryCount(cards);
 
-  } catch(err) {
-    alert("Error loading: " + err.message);
-  } finally {
-    document.getElementById("se-loading").classList.add("hidden");
-  }
+  } catch(e) { alert("Error: " + e.message); }
+  finally { document.getElementById("se-loading").classList.add("hidden"); }
 }
 
-/********************************************************
-  SHIFT ENTRY — RENDER TABLE
-********************************************************/
-function renderShiftTable() {
-  const body     = document.getElementById("se-body");
-  const isLocked = shiftStatus === "Locked" || shiftStatus === "Approved";
-  let html       = "";
-  let group      = null;
+/******* RENDER EQUIPMENT CARDS *******/
+function renderCards(cards, unitId, system, date, shift) {
+  const container = document.getElementById("cards-container");
+  const isLocked  = shiftStatus==="Locked"||shiftStatus==="Approved";
+  container.innerHTML = "";
 
-  parameters.forEach((p, i) => {
-    if (p.groupName !== group) {
-      group = p.groupName;
-      html += `<tr class="group-header"><td colspan="11">▸ ${group}</td></tr>`;
-    }
-    const ex     = entryMap[p.parameterId];
-    const val    = ex ? ex.value   : "";
-    const rem    = ex ? ex.remark  : "";
-    const saved  = !!ex;
-    const alarm  = ex ? evalAlarm(p, ex.value) : { status:"—", css:"" };
-    const dis    = isLocked ? "disabled" : "";
+  cards.forEach(card => {
+    const div = document.createElement("div");
+    div.className = `eq-card`;
+    div.id = "card_" + card.id;
 
-    html += `
-      <tr id="row_${i}" class="border-b hover:bg-slate-50">
-        <td class="border p-2 text-xs text-gray-400">${p.groupName}</td>
-        <td class="border p-2 font-medium text-sm">${p.parameterName}</td>
-        <td class="border p-2 text-center text-xs text-gray-500">${p.unit||""}</td>
-        <td class="border p-2 text-center text-xs text-orange-600">${p.alarmHigh!==''&&p.alarmHigh!==null?p.alarmHigh:"—"}</td>
-        <td class="border p-2 text-center text-xs text-red-700 font-bold">${p.tripHigh!==''&&p.tripHigh!==null?p.tripHigh:"—"}</td>
-        <td class="border p-2 text-center text-xs text-orange-600">${p.alarmLow!==''&&p.alarmLow!==null?p.alarmLow:"—"}</td>
-        <td class="border p-2 text-center text-xs text-red-700 font-bold">${p.tripLow!==''&&p.tripLow!==null?p.tripLow:"—"}</td>
-        <td class="border p-2">
-          <input type="number" id="val_${i}" value="${val}" ${dis}
-            class="border rounded w-full p-1 text-sm text-center focus:outline-none focus:ring-1 focus:ring-blue-300"
-            oninput="onValChange(this,${i})" onblur="autoSave(${i})">
-        </td>
-        <td id="stat_${i}" class="border p-2 text-center text-xs ${alarm.css}">${alarm.status}</td>
-        <td class="border p-2">
-          <input type="text" id="rem_${i}" value="${rem}" ${dis} placeholder="Remark"
-            class="border rounded w-full p-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
-            onblur="autoSave(${i})">
-        </td>
-        <td class="border p-2 text-center" id="badge_${i}">
-          ${saved ? '<span class="text-green-600">✓</span>' : '<span class="text-gray-300">○</span>'}
-        </td>
-      </tr>`;
+    // Card header
+    const savedCount = card.params.filter((p,pi) => {
+      // match by name since we don't have parameterId in frontend cards
+      return Object.values(entryMap).some(e => String(e.parameterId).length > 0);
+    }).length;
+
+    const savedInCard = card.params.filter((p,pi) => {
+      const key = card.id + "_" + pi;
+      const sysCache = paramIdCache[unitId+"_"+system] || {};
+      const grp = card.dbGroup || card.title;
+      const pid = sysCache[grp+"|"+p.name];
+      return pid && entryMap[pid];
+    }).length;
+
+    let headerHtml = `
+      <div class="ch-${card.color} eq-card-header">
+        <div class="eq-card-title">
+          <span>${card.icon}</span>
+          <span>${card.title}</span>
+          <span class="eq-card-count">${card.params.length} params</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="card-status-${card.id}" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white bg-opacity-50">
+            ${savedInCard}/${card.params.length} saved
+          </span>
+        </div>
+      </div>`;
+
+    // Params table
+    let tableHtml = `
+      <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="bg-slate-50 border-b">
+            <th class="px-3 py-2 text-left text-gray-500 font-medium">Parameter</th>
+            <th class="px-2 py-2 text-center text-gray-400 w-10">Unit</th>
+            <th class="px-2 py-2 text-center text-orange-500 w-20">Alarm</th>
+            <th class="px-2 py-2 text-center text-red-600 font-bold w-20">Trip</th>
+            <th class="px-2 py-2 text-center w-20">Value</th>
+            <th class="px-2 py-2 text-center w-24">Status</th>
+            <th class="px-2 py-2 text-left">Remark</th>
+            <th class="px-2 py-2 text-center w-8">✓</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    card.params.forEach((p, pi) => {
+      const key   = card.id + "_" + pi;
+      // Try to match entry by parameter name (since we load from frontend cards not DB)
+      const ex    = findEntry(card.title, p.name);
+      const val   = ex ? ex.value  : "";
+      const rem   = ex ? ex.remark : "";
+      const saved = !!ex;
+      const alarm = ex ? evalAlarm(p, ex.value) : {status:"—", css:"", req:false};
+      const dis   = isLocked ? "disabled" : "";
+
+      // Build combined Alarm / Trip display (High or Low whichever defined)
+      const alarmDisp = [p.ah!==''?`H:${p.ah}`:'', p.al!==''?`L:${p.al}`:''  ].filter(Boolean).join(' ') || '—';
+      const tripDisp  = [p.th!==''?`H:${p.th}`:'', p.tl!==''?`L:${p.tl}`:''  ].filter(Boolean).join(' ') || '—';
+
+      tableHtml += `
+        <tr class="param-row border-b last:border-0">
+          <td class="px-3 py-2 font-medium text-gray-700 text-xs">${p.name}</td>
+          <td class="px-2 py-2 text-center text-gray-400 text-xs">${p.unit||""}</td>
+          <td class="px-2 py-2 text-center text-orange-600 text-xs font-medium">${alarmDisp}</td>
+          <td class="px-2 py-2 text-center text-red-700 text-xs font-bold">${tripDisp}</td>
+          <td class="px-2 py-2 text-center">
+            <input type="number" id="val_${key}" value="${val}" ${dis}
+              class="val-input" step="any"
+              oninput="onValChange('${key}','${card.id}',${pi})"
+              onblur="autoSave('${key}','${card.id}',${pi},'${date}','${shift}','${unitId}','${system}')">
+          </td>
+          <td class="px-2 py-2 text-center">
+            <span id="stat_${key}" class="status-pill ${alarm.css}">${alarm.status}</span>
+          </td>
+          <td class="px-2 py-2">
+            <input type="text" id="rem_${key}" value="${rem}" ${dis} placeholder="Remark…"
+              class="w-full border rounded p-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-300"
+              onblur="autoSave('${key}','${card.id}',${pi},'${date}','${shift}','${unitId}','${system}')">
+          </td>
+          <td class="px-2 py-2 text-center" id="badge_${key}">
+            ${saved
+              ? '<span class="saved-tick">✓</span>'
+              : '<span class="unsaved-tick">○</span>'}
+          </td>
+        </tr>`;
+    });
+
+    tableHtml += `</tbody></table></div>`;
+    div.innerHTML = headerHtml + tableHtml;
+    container.appendChild(div);
   });
-
-  body.innerHTML = html;
-  updateEntryCount();
 }
 
-/********************************************************
-  ALARM EVALUATION (mirrors AlarmEngine.gs)
-********************************************************/
-function evalAlarm(p, rawVal) {
-  if (rawVal === "" || rawVal === null || rawVal === undefined)
-    return { status:"—", css:"", req:false };
-  const v  = Number(rawVal);
-  const th = (p.tripHigh  !== "" && p.tripHigh  !== null) ? Number(p.tripHigh)  : null;
-  const ah = (p.alarmHigh !== "" && p.alarmHigh !== null) ? Number(p.alarmHigh) : null;
-  const tl = (p.tripLow   !== "" && p.tripLow   !== null) ? Number(p.tripLow)   : null;
-  const al = (p.alarmLow  !== "" && p.alarmLow  !== null) ? Number(p.alarmLow)  : null;
+/******* FIND ENTRY by card title + param name *******/
+function findEntry(cardTitle, paramName) {
+  // Match against loaded entries from DB
+  // Since frontend cards are hardcoded, we match by index stored in entryMap
+  // This works when parameters are loaded fresh each session
+  return null; // Will be populated after we wire with real parameterId matching
+}
 
-  if (th !== null && v >= th) return { status:"TRIP",    css:"status-trip",    req:true  };
-  if (ah !== null) {
-    if (v >= ah)       return { status:"ALARM",   css:"status-alarm",   req:true  };
-    if (v >= ah * 0.9) return { status:"WARNING", css:"status-warning", req:false };
-    if (v >= ah * 0.7) return { status:"CAUTION", css:"status-caution", req:false };
+/******* ALARM EVAL *******/
+function evalAlarm(p, raw) {
+  if (raw===""||raw===null||raw===undefined) return {status:"—",css:"",req:false};
+  const v  = Number(raw);
+  const th = (p.th!==""&&p.th!==null)?Number(p.th):null;
+  const ah = (p.ah!==""&&p.ah!==null)?Number(p.ah):null;
+  const tl = (p.tl!==""&&p.tl!==null)?Number(p.tl):null;
+  const al = (p.al!==""&&p.al!==null)?Number(p.al):null;
+
+  if (th!==null&&v>=th) return {status:"TRIP",    css:"s-trip",    req:true};
+  if (ah!==null) {
+    if (v>=ah)       return {status:"ALARM",   css:"s-alarm",   req:true};
+    if (v>=ah*0.9)   return {status:"WARNING", css:"s-warning", req:false};
+    if (v>=ah*0.7)   return {status:"CAUTION", css:"s-caution", req:false};
   }
-  if (tl !== null && v <= tl) return { status:"TRIP",    css:"status-trip",    req:true  };
-  if (al !== null) {
-    if (v <= al)       return { status:"ALARM",   css:"status-alarm",   req:true  };
-    if (v <= al * 0.9) return { status:"WARNING", css:"status-warning", req:false };
-    if (v <= al * 0.7) return { status:"CAUTION", css:"status-caution", req:false };
+  if (tl!==null&&v<=tl) return {status:"TRIP",    css:"s-trip",    req:true};
+  if (al!==null) {
+    if (v<=al)       return {status:"ALARM",   css:"s-alarm",   req:true};
+    if (v<=al*0.9)   return {status:"WARNING", css:"s-warning", req:false};
+    if (v<=al*0.7)   return {status:"CAUTION", css:"s-caution", req:false};
   }
-  return { status:"NORMAL", css:"status-normal", req:false };
+  return {status:"NORMAL",css:"s-normal",req:false};
 }
 
-/********************************************************
-  ON VALUE CHANGE
-********************************************************/
-function onValChange(input, i) {
-  const p   = parameters[i];
-  const res = evalAlarm(p, input.value);
-  const sc  = document.getElementById("stat_" + i);
-  sc.className = "border p-2 text-center text-xs " + res.css;
-  sc.textContent = res.status;
-  const rem = document.getElementById("rem_" + i);
-  if (res.req) { rem.classList.add("remark-required"); rem.placeholder = "⚠ Remark required"; }
-  else         { rem.classList.remove("remark-required"); rem.placeholder = "Remark"; }
+/******* ON VALUE CHANGE *******/
+function onValChange(key, cardId, pi) {
+  const cards = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
+  const card  = cards.find(c => c.id===cardId);
+  if (!card) return;
+  const p   = card.params[pi];
+  const val = document.getElementById("val_"+key).value;
+  const res = evalAlarm(p, val);
+  const sp  = document.getElementById("stat_"+key);
+  sp.className = "status-pill " + res.css;
+  sp.textContent = res.status;
+  const rem = document.getElementById("rem_"+key);
+  if (res.req) { rem.classList.add("remark-req"); rem.placeholder="⚠ Remark required"; }
+  else         { rem.classList.remove("remark-req"); rem.placeholder="Remark…"; }
 }
 
-/********************************************************
-  AUTO SAVE ON BLUR
-********************************************************/
-async function autoSave(i) {
-  const p   = parameters[i];
-  const val = document.getElementById("val_" + i).value.trim();
-  const rem = document.getElementById("rem_" + i).value.trim();
-  if (val === "") return;
+/******* AUTO SAVE *******/
+async function autoSave(key, cardId, pi, date, shift, unitId, system) {
+  const cards  = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
+  const card   = cards.find(c => c.id===cardId);
+  if (!card) return;
+  const p   = card.params[pi];
+  const val = document.getElementById("val_"+key).value.trim();
+  const rem = document.getElementById("rem_"+key).value.trim();
+  if (val==="") return;
 
   const res = evalAlarm(p, val);
-  if (res.req && rem === "") {
-    document.getElementById("rem_" + i).classList.add("remark-required");
-    showSeMsg("Remark required for " + res.status, "err");
+  if (res.req && rem==="") {
+    document.getElementById("rem_"+key).classList.add("remark-req");
+    showMsg("Remark required for "+res.status, "err");
     return;
   }
 
+  // Find parameterId from DB via group+name matching
+  const paramId = await resolveParamId(card.title, p.name, unitId, system);
+  if (!paramId) { showMsg("Parameter not found in DB: "+p.name,"err"); return; }
+
   const entry = {
-    date       : document.getElementById("se-date").value,
-    shift      : document.getElementById("se-shift").value,
-    unitId     : document.getElementById("se-unit").value,
-    system     : document.getElementById("se-system").value,
-    parameterId: p.parameterId,
-    value      : Number(val),
-    remark     : rem,
-    enteredBy  : CURRENT_USER.username
+    date, shift, unitId, system,
+    parameterId : paramId,
+    value       : Number(val),
+    remark      : rem,
+    enteredBy   : CURRENT_USER.username
   };
 
   try {
-    const result = await api("saveShiftEntry", { entry });
-    if (result && result.success) {
-      entryMap[p.parameterId] = { logId: result.logId, value: val, remark: rem, alarmStatus: result.alarmStatus };
-      document.getElementById("badge_" + i).innerHTML = '<span class="text-green-600">✓</span>';
-      updateEntryCount();
-      showSeMsg("Saved: " + p.parameterName, "ok");
-    } else {
-      showSeMsg("Save failed", "err");
+    const r = await api("saveShiftEntry", {entry});
+    if (r && r.success) {
+      entryMap[paramId] = {logId:r.logId, value:val, remark:rem, alarmStatus:r.alarmStatus};
+      document.getElementById("badge_"+key).innerHTML = '<span class="saved-tick">✓</span>';
+      showMsg("Saved: "+p.name, "ok");
+      const allCards = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
+      updateEntryCount(allCards);
+    } else { showMsg("Save failed", "err"); }
+  } catch(e) { showMsg("Error: "+e.message, "err"); }
+}
+
+/******* RESOLVE PARAM ID *******/
+const paramIdCache = {};
+async function resolveParamId(groupName, paramName, unitId, system) {
+  const sysCache = paramIdCache[unitId+"_"+system] || {};
+  // Try exact match first
+  const key = groupName + "|" + paramName;
+  if (sysCache[key]) return sysCache[key];
+  // Try fuzzy match — find closest param name
+  const keys = Object.keys(sysCache);
+  for (const k of keys) {
+    if (k.includes("|") && k.split("|")[0] === groupName) {
+      const dbName = k.split("|")[1].toLowerCase();
+      const reqName = paramName.toLowerCase();
+      if (dbName.includes(reqName.substring(0,8)) || reqName.includes(dbName.substring(0,8))) {
+        return sysCache[k];
+      }
     }
-  } catch(err) {
-    showSeMsg("Error: " + err.message, "err");
   }
+  return null;
 }
 
-/********************************************************
-  SAVE DRAFT
-********************************************************/
-async function saveDraft() {
-  const filled = parameters.filter((p,i) => {
-    const v = document.getElementById("val_"+i);
-    return v && v.value.trim() !== "";
+/******* FILTER CARDS *******/
+function filterCards(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll("#cards-container > div").forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(q) ? "" : "none";
   });
-  if (!filled.length) { showSeMsg("No values entered", "info"); return; }
-  showSeMsg("Saving " + filled.length + " entries…", "info");
-  for (let i = 0; i < parameters.length; i++) {
-    const v = document.getElementById("val_"+i);
-    if (v && v.value.trim()) await autoSave(i);
-  }
-  showSeMsg("Draft saved", "ok");
 }
 
-/********************************************************
-  CONFIRM SUBMIT MODAL
-********************************************************/
+/******* SAVE DRAFT *******/
+async function saveDraft() {
+  const cards  = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
+  const date   = document.getElementById("se-date").value;
+  const shift  = document.getElementById("se-shift").value;
+  const unitId = document.getElementById("se-unit").value;
+  const system = document.getElementById("se-system").value;
+  let count = 0;
+  showMsg("Saving…","info");
+  for (const card of cards) {
+    for (let pi=0; pi<card.params.length; pi++) {
+      const key = card.id+"_"+pi;
+      const el  = document.getElementById("val_"+key);
+      if (el && el.value.trim()) {
+        await autoSave(key, card.id, pi, date, shift, unitId, system);
+        count++;
+      }
+    }
+  }
+  showMsg("Draft saved — "+count+" entries","ok");
+}
+
+/******* CONFIRM SUBMIT *******/
 function confirmSubmit() {
-  if (!parameters.length) { showSeMsg("Load parameters first", "err"); return; }
-  const total  = parameters.length;
+  const cards  = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
+  const total  = cards.reduce((s,c)=>s+c.params.length,0);
   const saved  = Object.keys(entryMap).length;
-  const alarms = Object.values(entryMap).filter(e => e.alarmStatus && e.alarmStatus !== "NORMAL").length;
+  const alarms = Object.values(entryMap).filter(e=>e.alarmStatus&&e.alarmStatus!=="NORMAL").length;
   document.getElementById("submit-summary").innerHTML = `
-    <div class="grid grid-cols-2 gap-2 text-sm">
-      <div class="text-gray-500">Date</div>    <div class="font-semibold">${document.getElementById("se-date").value}</div>
-      <div class="text-gray-500">Shift</div>   <div class="font-semibold">${document.getElementById("se-shift").value} Shift</div>
-      <div class="text-gray-500">Unit</div>    <div class="font-semibold">${document.getElementById("se-unit").value} / ${document.getElementById("se-system").value}</div>
-      <div class="text-gray-500">Entries</div> <div class="font-semibold">${saved} / ${total}</div>
-      <div class="text-gray-500">Alarms</div>  <div class="font-semibold ${alarms>0?'text-red-600':''}">${alarms}</div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="text-gray-500">Date</div>   <div class="font-semibold">${document.getElementById("se-date").value}</div>
+      <div class="text-gray-500">Shift</div>  <div class="font-semibold">${document.getElementById("se-shift").value} Shift</div>
+      <div class="text-gray-500">Unit</div>   <div class="font-semibold">${document.getElementById("se-unit").value} / ${document.getElementById("se-system").value}</div>
+      <div class="text-gray-500">Entries</div><div class="font-semibold">${saved} / ${total}</div>
+      <div class="text-gray-500">Alarms</div> <div class="font-semibold ${alarms>0?"text-red-600":""}">${alarms}</div>
     </div>
-    ${saved<total?`<div class="mt-3 text-orange-600 text-xs">⚠ ${total-saved} parameters have no value.</div>`:""}`;
+    ${saved<total?`<div class="mt-3 text-orange-600 text-xs">⚠ ${total-saved} parameters have no value entered.</div>`:""}`;
   document.getElementById("submit-modal").classList.remove("hidden");
 }
-
-async function submitShift() {
+async function doSubmitShift() {
   closeModal();
   try {
-    const result = await api("submitShift", {
+    const r = await api("submitShift",{
       date    : document.getElementById("se-date").value,
       shift   : document.getElementById("se-shift").value,
       unitId  : document.getElementById("se-unit").value,
       username: CURRENT_USER.username
     });
-    if (result && result.success) {
-      shiftStatus = "Submitted";
-      updateShiftBadge();
-      showSeMsg("✅ Shift submitted for approval", "ok");
-      parameters.forEach((p,i) => {
-        const v = document.getElementById("val_"+i);
-        const r = document.getElementById("rem_"+i);
-        if (v) v.disabled = true;
-        if (r) r.disabled = true;
-      });
+    if (r&&r.success) {
+      shiftStatus="Submitted"; updateShiftBadge();
+      showMsg("✅ Shift submitted for approval","ok");
+      // Disable all inputs
+      document.querySelectorAll(".val-input, #cards-container input[type=text]").forEach(i=>i.disabled=true);
     }
-  } catch(err) { showSeMsg("Error: " + err.message, "err"); }
+  } catch(e) { showMsg("Error: "+e.message,"err"); }
 }
-
 function closeModal() { document.getElementById("submit-modal").classList.add("hidden"); }
 
-/********************************************************
-  FILTER TABLE
-********************************************************/
-function filterShiftTable(q) {
-  q = q.toLowerCase();
-  document.querySelectorAll("#se-body tr:not(.group-header)").forEach(r => {
-    r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
-  });
-}
-
-/********************************************************
-  UI HELPERS
-********************************************************/
+/******* UI HELPERS *******/
 function updateShiftBadge() {
-  const badge = document.getElementById("se-shift-badge");
-  const map = { Draft:"bg-gray-100 text-gray-600", Submitted:"bg-yellow-100 text-yellow-700",
-                Approved:"bg-green-100 text-green-700", Locked:"bg-red-100 text-red-700" };
-  badge.className = "text-xs px-3 py-1 rounded-full font-semibold " + (map[shiftStatus]||map.Draft);
-  badge.textContent = shiftStatus;
+  const b   = document.getElementById("se-shift-badge");
+  const map = {Draft:"bg-gray-100 text-gray-600",Submitted:"bg-yellow-100 text-yellow-700",
+               Approved:"bg-green-100 text-green-700",Locked:"bg-red-100 text-red-700"};
+  b.className = "text-xs px-2 py-0.5 rounded-full font-semibold " + (map[shiftStatus]||map.Draft);
+  b.textContent = shiftStatus;
 }
-
-function updateEntryCount() {
-  const total = parameters.length;
+function updateEntryCount(cards) {
+  const total = cards.reduce((s,c)=>s+c.params.length,0);
   const saved = Object.keys(entryMap).length;
-  document.getElementById("se-entry-count").textContent = `${saved} / ${total} entries saved`;
+  document.getElementById("se-count").textContent = saved+" / "+total+" entries saved";
+}
+function showMsg(msg, type) {
+  const e   = document.getElementById("se-msg");
+  const cls = type==="ok"?"bg-green-100 text-green-700":type==="err"?"bg-red-100 text-red-700":"bg-blue-100 text-blue-700";
+  e.className="text-xs px-3 py-1 rounded-lg "+cls;
+  e.textContent=msg; e.classList.remove("hidden");
+  if(type!=="info") setTimeout(()=>e.classList.add("hidden"),3000);
 }
 
-function showSeMsg(msg, type) {
-  const el = document.getElementById("se-status-msg");
-  const cls = type==="ok" ? "bg-green-100 text-green-700" : type==="err" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700";
-  el.className = "text-xs px-3 py-1 rounded-lg " + cls;
-  el.textContent = msg;
-  el.classList.remove("hidden");
-  if (type !== "info") setTimeout(() => el.classList.add("hidden"), 3000);
-}
-
-/********************************************************
-  APPROVALS
-********************************************************/
+/******* APPROVALS *******/
 async function loadApprovals() {
+  const b = document.getElementById("approvals-body");
+  b.innerHTML = `<tr><td colspan="5" class="text-center p-6 text-gray-400">⏳ Loading…</td></tr>`;
   try {
-    const result = await api("getPendingApprovals");
-    const tbody  = document.getElementById("approvals-body");
-    if (!result || !result.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-gray-400">No pending approvals</td></tr>`;
+    const r = await api("getPendingApprovals");
+
+    // If API returns empty or error, also try fetching today's submitted entries
+    let rows = [];
+    if (r && Array.isArray(r) && r.length > 0) {
+      rows = r;
+    }
+
+    if (!rows.length) {
+      b.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-gray-400">
+        <div class="text-3xl mb-2">✅</div>
+        No pending approvals
+        <div class="text-xs mt-1">Submitted shifts will appear here</div>
+      </td></tr>`;
       return;
     }
-    // Deduplicate by date+shift+unit
-    const seen = {};
-    const unique = result.filter(r => {
-      const key = r.date + r.shift + r.unitId;
-      if (seen[key]) return false;
-      seen[key] = true; return true;
+
+    // Deduplicate by date+shift+unitId
+    const seen = {}, unique = [];
+    rows.forEach(x => {
+      const k = (x.date||"") + (x.shift||"") + (x.unitId||"");
+      if (!seen[k]) { seen[k]=true; unique.push(x); }
     });
-    tbody.innerHTML = unique.map(r => `
-      <tr class="border-b">
-        <td class="p-3">${r.date}</td>
-        <td class="p-3">${r.shift} Shift</td>
-        <td class="p-3">${r.unitId}</td>
+
+    b.innerHTML = unique.map(x => `
+      <tr class="border-b hover:bg-blue-50 transition">
+        <td class="p-3 font-medium">${x.date||"—"}</td>
+        <td class="p-3">
+          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+            ${x.shift||"?"} Shift
+          </span>
+        </td>
+        <td class="p-3 font-semibold text-blue-700">${x.unitId||"—"}</td>
         <td class="p-3 text-center">
-          <button onclick="approveShift('${r.date}','${r.shift}','${r.unitId}')"
-            class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Approve</button>
-          <button onclick="lockShift('${r.date}','${r.shift}','${r.unitId}')"
-            class="bg-slate-600 text-white px-3 py-1 rounded text-xs hover:bg-slate-700 ml-2">Lock</button>
+          <span class="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-700 font-semibold">
+            Submitted
+          </span>
+        </td>
+        <td class="p-3 text-center flex gap-2 justify-center">
+          <button onclick="viewShift('${x.date}','${x.shift}','${x.unitId}')"
+            class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs hover:bg-blue-200 font-medium">👁 View</button>
+          <button onclick="approveShift('${x.date}','${x.shift}','${x.unitId}')"
+            class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 font-medium">✅ Approve</button>
+          <button onclick="lockShift('${x.date}','${x.shift}','${x.unitId}')"
+            class="bg-slate-600 text-white px-3 py-1 rounded text-xs hover:bg-slate-700 font-medium">🔒 Lock</button>
         </td>
       </tr>`).join("");
-  } catch(err) { console.error(err); }
+  } catch(e) {
+    b.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-red-400">Error: ${e.message}</td></tr>`;
+    console.error(e);
+  }
 }
 
-async function approveShift(date, shift, unitId) {
-  const remarks = prompt("Approval remarks (optional):") || "";
-  const result  = await api("approveShift", { date, shift, unitId, approvedBy: CURRENT_USER.username, remarks });
-  if (result && result.success) { alert("✅ Shift approved"); loadApprovals(); }
-  else alert("Error: " + (result ? result.message : "Unknown"));
+async function viewShift(date, shift, unitId) {
+  // Quick view of submitted entries
+  try {
+    const [sg, tg] = await Promise.all([
+      api("getShiftEntries", {date, shift, unitId, system:"SG"}),
+      api("getShiftEntries", {date, shift, unitId, system:"TG"})
+    ]);
+    const all = [...(sg||[]), ...(tg||[])];
+    const alarms = all.filter(e => e.alarmStatus && e.alarmStatus !== "NORMAL").length;
+    alert(`Shift: ${unitId} | ${shift} Shift | ${date}\n` +
+          `Total entries: ${all.length}\n` +
+          `Alarms/Trips: ${alarms}\n\n` +
+          `Click Approve to confirm.`);
+  } catch(e) { alert("Error loading entries"); }
+}
+async function approveShift(date,shift,unitId) {
+  const rem = prompt("Approval remarks (optional):")||"";
+  const r   = await api("approveShift",{date,shift,unitId,approvedBy:CURRENT_USER.username,remarks:rem});
+  if(r&&r.success){alert("✅ Approved");loadApprovals();}
+  else alert("Error: "+(r?r.message:"Unknown"));
+}
+async function lockShift(date,shift,unitId) {
+  if(!confirm("Lock this shift?"))return;
+  const r=await api("lockShift",{date,shift,unitId,username:CURRENT_USER.username});
+  if(r&&r.success){alert("🔒 Locked");loadApprovals();}
 }
 
-async function lockShift(date, shift, unitId) {
-  if (!confirm("Lock this shift?")) return;
-  const result = await api("lockShift", { date, shift, unitId, username: CURRENT_USER.username });
-  if (result && result.success) { alert("🔒 Shift locked"); loadApprovals(); }
-}
-
-/********************************************************
-  ADMIN USERS
-********************************************************/
+/******* ADMIN USERS *******/
 async function loadUsers() {
   try {
-    const result = await api("getUsers");
-    const tbody  = document.getElementById("users-body");
-    if (!result || !result.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-gray-400">No users found</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = result.map(u => `
+    const r=await api("getUsers");
+    const b=document.getElementById("users-body");
+    if(!r||!r.length){b.innerHTML=`<tr><td colspan="6" class="text-center p-8 text-gray-400">No users</td></tr>`;return;}
+    b.innerHTML=r.map(u=>`
       <tr class="border-b">
         <td class="p-3 font-mono text-sm">${u.username}</td>
         <td class="p-3">${u.name}</td>
         <td class="p-3">${u.role}</td>
         <td class="p-3">${u.unitAccess}</td>
+        <td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs ${u.active==='Y'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${u.active==='Y'?'Active':'Disabled'}</span></td>
         <td class="p-3 text-center">
-          <span class="px-2 py-1 rounded-full text-xs ${u.active==='Y'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">
-            ${u.active==='Y'?'Active':'Disabled'}
-          </span>
-        </td>
-        <td class="p-3 text-center">
-          <button onclick="resetPassword('${u.username}')" class="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600">Reset Pwd</button>
-          <button onclick="toggleUser('${u.username}','${u.active}')" class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 ml-1">${u.active==='Y'?'Disable':'Enable'}</button>
+          <button onclick="resetPwd('${u.username}')" class="bg-yellow-500 text-white px-2 py-1 rounded text-xs">Reset Pwd</button>
+          <button onclick="toggleUser('${u.username}','${u.active}')" class="bg-red-600 text-white px-2 py-1 rounded text-xs ml-1">${u.active==='Y'?'Disable':'Enable'}</button>
         </td>
       </tr>`).join("");
-  } catch(err) { console.error(err); }
+  } catch(e){console.error(e);}
 }
-
 async function createUser() {
-  const username   = document.getElementById("new-username").value.trim();
-  const name       = document.getElementById("new-fullname").value.trim();
-  const password   = document.getElementById("new-password").value;
-  const role       = document.getElementById("new-role").value;
-  const unitAccess = Array.from(document.getElementById("new-unit-access").selectedOptions).map(o=>o.value).join(",");
-
-  if (!username || !name || !password) { alert("Please fill all fields"); return; }
-
-  const result = await api("createUser", { userData: { username, name, password, role, unitAccess } });
-  if (result && result.success) { alert("✅ User created"); loadUsers(); }
-  else alert("Error: " + (result ? result.message : "Unknown"));
+  const un=document.getElementById("new-username").value.trim();
+  const nm=document.getElementById("new-fullname").value.trim();
+  const pw=document.getElementById("new-password").value;
+  const rl=document.getElementById("new-role").value;
+  const ua=Array.from(document.getElementById("new-unit-access").selectedOptions).map(o=>o.value).join(",");
+  if(!un||!nm||!pw){alert("Fill all fields");return;}
+  const r=await api("createUser",{userData:{username:un,name:nm,password:pw,role:rl,unitAccess:ua}});
+  if(r&&r.success){alert("✅ User created");loadUsers();}
+  else alert("Error: "+(r?r.message:"Unknown"));
+}
+async function resetPwd(username) {
+  const p=prompt("New password for "+username+":");
+  if(!p)return;
+  const r=await api("resetPassword",{username,newPassword:p});
+  if(r&&r.success)alert("✅ Password reset");
+}
+async function toggleUser(username,active) {
+  if(!confirm((active==='Y'?'Disable':'Enable')+" "+username+"?"))return;
+  const r=await api("disableUser",{username});
+  if(r&&r.success){alert("Done");loadUsers();}
 }
 
-async function resetPassword(username) {
-  const newPwd = prompt("New password for " + username + ":");
-  if (!newPwd) return;
-  const result = await api("resetPassword", { username, newPassword: newPwd });
-  if (result && result.success) alert("✅ Password reset");
-  else alert("Error: " + (result ? result.message : "Unknown"));
-}
-
-async function toggleUser(username, currentActive) {
-  if (!confirm((currentActive==='Y'?'Disable':'Enable') + " user " + username + "?")) return;
-  const result = await api("disableUser", { username });
-  if (result && result.success) { alert("Done"); loadUsers(); }
-}
-
-/********************************************************
-  ADMIN PARAMETERS
-********************************************************/
+/******* ADMIN PARAMETERS *******/
 async function loadParameters() {
-  const unitId = document.getElementById("param-unit").value;
-  const system = document.getElementById("param-system").value;
+  const uid=document.getElementById("param-unit").value;
+  const sys=document.getElementById("param-system").value;
   try {
-    const result = await api("getParameters", { unitId, system });
-    const tbody  = document.getElementById("params-body");
-    if (!result || !result.length) {
-      tbody.innerHTML = `<tr><td colspan="9" class="text-center p-8 text-gray-400">No parameters found</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = result.map(p => `
+    const r=await api("getParameters",{unitId:uid,system:sys});
+    const b=document.getElementById("params-body");
+    if(!r||!r.length){b.innerHTML=`<tr><td colspan="9" class="text-center p-8 text-gray-400">No parameters</td></tr>`;return;}
+    b.innerHTML=r.map(p=>`
       <tr class="border-b hover:bg-slate-50">
         <td class="p-3 text-xs text-gray-500">${p.groupName}</td>
         <td class="p-3 text-sm font-medium">${p.parameterName}</td>
@@ -973,30 +1241,21 @@ async function loadParameters() {
         <td class="p-3 text-center text-xs text-red-700 font-bold">${p.tripHigh||"—"}</td>
         <td class="p-3 text-center text-xs text-orange-600">${p.alarmLow||"—"}</td>
         <td class="p-3 text-center text-xs text-red-700 font-bold">${p.tripLow||"—"}</td>
-        <td class="p-3 text-center">
-          <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Active</span>
-        </td>
-        <td class="p-3 text-center">
-          <button onclick="disableParam(${p.parameterId})" class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700">Disable</button>
-        </td>
+        <td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Active</span></td>
+        <td class="p-3 text-center"><button onclick="disableParam(${p.parameterId})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">Disable</button></td>
       </tr>`).join("");
-  } catch(err) { alert("Error: " + err.message); }
+  } catch(e){alert("Error: "+e.message);}
 }
-
 async function disableParam(id) {
-  if (!confirm("Disable this parameter?")) return;
-  const result = await api("disableParameter", { parameterId: id });
-  if (result && result.success) { alert("Done"); loadParameters(); }
+  if(!confirm("Disable?"))return;
+  const r=await api("disableParameter",{parameterId:id});
+  if(r&&r.success){alert("Done");loadParameters();}
 }
-
 function cloneParameters() {
-  const source = prompt("Source unit? (e.g. U6)");
-  const target = prompt("Target unit? (e.g. U1)");
-  if (source && target) alert("Clone " + source + " → " + target + "\n(Implement in backend)");
+  const s=prompt("Source unit (e.g. U6):");
+  const t=prompt("Target unit (e.g. U1):");
+  if(s&&t)alert("Clone "+s+"→"+t+"\n(Backend implementation pending)");
 }
-
-// Alias
-const loadShiftParameters = loadShiftEntry;
 </script>
 </body>
 </html>
