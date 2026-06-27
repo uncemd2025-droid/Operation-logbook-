@@ -543,32 +543,212 @@ const TG_CARDS = [
 
       <!-- ══ ADMIN PARAMETERS ══ -->
       <div data-page="admin-parameters" class="p-4 lg:p-6">
-        <h1 class="text-2xl font-bold mb-5">Parameter Master</h1>
+        <div class="flex justify-between items-center mb-5 flex-wrap gap-3">
+          <h1 class="text-2xl font-bold">Parameter Master</h1>
+          <div class="flex gap-2">
+            <button onclick="showAddEquipModal()"
+              class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 font-medium">
+              ➕ Add Equipment
+            </button>
+            <button onclick="cloneParameters()"
+              class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 font-medium">
+              📋 Clone Unit
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
         <div class="bg-white rounded-xl shadow p-4 mb-5">
-          <div class="grid md:grid-cols-4 gap-4">
-            <select id="param-unit" class="border rounded-lg p-3 text-sm">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <select id="param-unit" class="border rounded-lg p-2 text-sm">
               <option value="U6">Unit 6</option><option value="U1">Unit 1</option>
               <option value="U2">Unit 2</option><option value="U3">Unit 3</option>
               <option value="U4">Unit 4</option><option value="U5">Unit 5</option>
             </select>
-            <select id="param-system" class="border rounded-lg p-3 text-sm">
-              <option value="SG">SG</option><option value="TG">TG</option>
+            <select id="param-system" class="border rounded-lg p-2 text-sm">
+              <option value="SG">SG — Steam Generator</option>
+              <option value="TG">TG — Turbine Generator</option>
             </select>
-            <button onclick="loadParameters()" class="bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 px-4">Load Parameters</button>
-            <button onclick="cloneParameters()" class="bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 px-4">Clone Unit</button>
+            <input id="param-search" placeholder="🔍 Search parameter…"
+              class="border rounded-lg p-2 text-sm col-span-2"
+              oninput="filterParams(this.value)">
+            <button onclick="loadParameters()"
+              class="bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 px-4 font-medium">
+              Load Parameters
+            </button>
+          </div>
+          <!-- Status logic legend -->
+          <div class="mt-3 p-3 bg-slate-50 rounded-lg text-xs text-gray-500">
+            <strong class="text-gray-700">Status Logic:</strong>
+            &nbsp;Value ≥ TripHigh → <span class="text-red-700 font-bold">TRIP</span>
+            &nbsp;| Value ≥ AlarmHigh → <span class="text-red-600 font-semibold">ALARM</span>
+            &nbsp;| Value ≥ 90% of AlarmHigh → <span class="text-orange-500 font-semibold">WARNING</span>
+            &nbsp;| Value ≥ 70% of AlarmHigh → <span class="text-yellow-600 font-semibold">CAUTION</span>
+            &nbsp;| Same logic applies on Low side (≤)
           </div>
         </div>
-        <div class="bg-white rounded-xl shadow overflow-auto">
-          <table class="w-full text-sm">
-            <thead class="bg-slate-800 text-white">
-              <tr>
-                <th class="p-3">Group</th><th class="p-3">Parameter</th><th class="p-3">Unit</th>
-                <th class="p-3">AH</th><th class="p-3">TH</th><th class="p-3">AL</th><th class="p-3">TL</th>
-                <th class="p-3">Status</th><th class="p-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="params-body"><tr><td colspan="9" class="text-center p-8 text-gray-400">Select unit and system, click Load</td></tr></tbody>
-          </table>
+
+        <!-- Parameters by Equipment Group -->
+        <div id="params-container"></div>
+
+      </div>
+
+      <!-- ══ EDIT PARAMETER MODAL ══ -->
+      <div id="edit-param-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+          <h2 class="text-lg font-bold mb-4">✏️ Edit Parameter</h2>
+
+          <input type="hidden" id="ep-id">
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Parameter Name</label>
+              <input id="ep-name" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Unit (°C / mmWC etc)</label>
+              <input id="ep-unit" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+          </div>
+
+          <!-- Alarm / Trip limits -->
+          <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-3">
+            <div class="text-xs font-bold text-orange-700 mb-2 uppercase tracking-wide">HIGH Side Limits</div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">Alarm High (AH)</label>
+                <input id="ep-ah" type="number" step="any" placeholder="—"
+                  class="border rounded-lg p-2 w-full text-sm focus:border-orange-400">
+                <div class="text-xs text-gray-400 mt-1">Value ≥ this → ALARM</div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">Trip High (TH)</label>
+                <input id="ep-th" type="number" step="any" placeholder="—"
+                  class="border rounded-lg p-2 w-full text-sm focus:border-red-400">
+                <div class="text-xs text-gray-400 mt-1">Value ≥ this → TRIP</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+            <div class="text-xs font-bold text-blue-700 mb-2 uppercase tracking-wide">LOW Side Limits</div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">Alarm Low (AL)</label>
+                <input id="ep-al" type="number" step="any" placeholder="—"
+                  class="border rounded-lg p-2 w-full text-sm focus:border-blue-400">
+                <div class="text-xs text-gray-400 mt-1">Value ≤ this → ALARM</div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">Trip Low (TL)</label>
+                <input id="ep-tl" type="number" step="any" placeholder="—"
+                  class="border rounded-lg p-2 w-full text-sm focus:border-red-400">
+                <div class="text-xs text-gray-400 mt-1">Value ≤ this → TRIP</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live preview -->
+          <div class="bg-slate-50 rounded-lg p-3 mb-4 text-xs">
+            <div class="font-semibold text-gray-600 mb-1">Status Logic Preview:</div>
+            <div id="ep-preview" class="text-gray-500">Fill in limits above to see preview</div>
+          </div>
+
+          <div class="flex gap-3 justify-end">
+            <button onclick="closeEditModal()" class="px-4 py-2 border rounded-lg text-sm">Cancel</button>
+            <button onclick="saveParamEdit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 font-medium">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ADD PARAMETER MODAL ══ -->
+      <div id="add-param-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+          <h2 class="text-lg font-bold mb-4">➕ Add Parameter</h2>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Equipment Group</label>
+              <input id="ap-group" placeholder="e.g. ID FAN A" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Parameter Name</label>
+              <input id="ap-name" placeholder="e.g. Motor Brg Temp" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Unit (°C / mm etc)</label>
+              <input id="ap-unit" placeholder="°C" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Display Order</label>
+              <input id="ap-order" type="number" placeholder="10" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+              <div class="text-xs font-bold text-orange-700 mb-2">HIGH Limits</div>
+              <input id="ap-ah" type="number" step="any" placeholder="Alarm High"
+                class="border rounded p-2 w-full text-sm mb-2">
+              <input id="ap-th" type="number" step="any" placeholder="Trip High"
+                class="border rounded p-2 w-full text-sm">
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div class="text-xs font-bold text-blue-700 mb-2">LOW Limits</div>
+              <input id="ap-al" type="number" step="any" placeholder="Alarm Low"
+                class="border rounded p-2 w-full text-sm mb-2">
+              <input id="ap-tl" type="number" step="any" placeholder="Trip Low"
+                class="border rounded p-2 w-full text-sm">
+            </div>
+          </div>
+          <div class="text-xs text-gray-400 mb-4">
+            Unit and System will be taken from current filter selection.
+            Leave limits blank if not applicable.
+          </div>
+          <div class="flex gap-3 justify-end">
+            <button onclick="closeAddParamModal()" class="px-4 py-2 border rounded-lg text-sm">Cancel</button>
+            <button onclick="saveNewParam()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 font-medium">
+              Add Parameter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ADD EQUIPMENT MODAL ══ -->
+      <div id="add-equip-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          <h2 class="text-lg font-bold mb-2">🏭 Add New Equipment Block</h2>
+          <p class="text-sm text-gray-500 mb-4">Creates a new equipment group in the selected Unit and System</p>
+          <div class="grid gap-3 mb-4">
+            <div>
+              <label class="text-xs font-medium text-gray-500 block mb-1">Equipment Name</label>
+              <input id="ae-name" placeholder="e.g. PA FAN C" class="border rounded-lg p-2 w-full text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-medium text-gray-500 block mb-1">Unit</label>
+                <select id="ae-unit" class="border rounded-lg p-2 w-full text-sm">
+                  <option value="U6">Unit 6</option><option value="U1">Unit 1</option>
+                  <option value="U2">Unit 2</option><option value="U3">Unit 3</option>
+                  <option value="U4">Unit 4</option><option value="U5">Unit 5</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 block mb-1">System</label>
+                <select id="ae-system" class="border rounded-lg p-2 w-full text-sm">
+                  <option value="SG">SG</option><option value="TG">TG</option>
+                </select>
+              </div>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
+              💡 After adding the equipment, use <strong>Add Parameter</strong> inside the equipment block to add its parameters.
+            </div>
+          </div>
+          <div class="flex gap-3 justify-end">
+            <button onclick="closeAddEquipModal()" class="px-4 py-2 border rounded-lg text-sm">Cancel</button>
+            <button onclick="saveNewEquipment()" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 font-medium">
+              Create Equipment Block
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1225,36 +1405,299 @@ async function toggleUser(username,active) {
 }
 
 /******* ADMIN PARAMETERS *******/
+// ── PARAMETER ADMIN STATE ──
+let allParams = [];
+
 async function loadParameters() {
-  const uid=document.getElementById("param-unit").value;
-  const sys=document.getElementById("param-system").value;
+  const uid = document.getElementById("param-unit").value;
+  const sys = document.getElementById("param-system").value;
+  const container = document.getElementById("params-container");
+  container.innerHTML = `<div class="text-center p-8 text-gray-400">⏳ Loading…</div>`;
   try {
-    const r=await api("getParameters",{unitId:uid,system:sys});
-    const b=document.getElementById("params-body");
-    if(!r||!r.length){b.innerHTML=`<tr><td colspan="9" class="text-center p-8 text-gray-400">No parameters</td></tr>`;return;}
-    b.innerHTML=r.map(p=>`
-      <tr class="border-b hover:bg-slate-50">
-        <td class="p-3 text-xs text-gray-500">${p.groupName}</td>
-        <td class="p-3 text-sm font-medium">${p.parameterName}</td>
-        <td class="p-3 text-center text-xs">${p.unit||""}</td>
-        <td class="p-3 text-center text-xs text-orange-600">${p.alarmHigh||"—"}</td>
-        <td class="p-3 text-center text-xs text-red-700 font-bold">${p.tripHigh||"—"}</td>
-        <td class="p-3 text-center text-xs text-orange-600">${p.alarmLow||"—"}</td>
-        <td class="p-3 text-center text-xs text-red-700 font-bold">${p.tripLow||"—"}</td>
-        <td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Active</span></td>
-        <td class="p-3 text-center"><button onclick="disableParam(${p.parameterId})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">Disable</button></td>
+    const r = await api("getParameters", {unitId: uid, system: sys});
+    if (!r || !r.length) {
+      container.innerHTML = `<div class="bg-white rounded-xl shadow p-8 text-center text-gray-400">No parameters found for ${uid} / ${sys}</div>`;
+      return;
+    }
+    allParams = r;
+    renderParamGroups(r, uid, sys);
+  } catch(e) { alert("Error: " + e.message); }
+}
+
+function renderParamGroups(params, uid, sys) {
+  const container = document.getElementById("params-container");
+  // Group by groupName
+  const groups = {};
+  params.forEach(p => {
+    if (!groups[p.groupName]) groups[p.groupName] = [];
+    groups[p.groupName].push(p);
+  });
+
+  container.innerHTML = Object.keys(groups).map(grp => {
+    const gparams = groups[grp];
+    const rows = gparams.map(p => `
+      <tr class="border-b hover:bg-slate-50 param-row" data-search="${(p.groupName+p.parameterName).toLowerCase()}">
+        <td class="p-3 text-sm font-medium text-gray-700">${p.parameterName}</td>
+        <td class="p-3 text-center text-xs text-gray-500">${p.unit||"—"}</td>
+        <td class="p-3 text-center">
+          ${p.alarmHigh!==''&&p.alarmHigh!==null
+            ? `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-700 text-xs font-medium">H: ${p.alarmHigh}</span>` : ''}
+          ${p.alarmLow!==''&&p.alarmLow!==null
+            ? `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-700 text-xs font-medium ml-1">L: ${p.alarmLow}</span>` : ''}
+          ${!p.alarmHigh && !p.alarmLow ? '<span class="text-gray-300 text-xs">—</span>' : ''}
+        </td>
+        <td class="p-3 text-center">
+          ${p.tripHigh!==''&&p.tripHigh!==null
+            ? `<span class="px-2 py-0.5 rounded bg-red-100 text-red-700 text-xs font-bold">H: ${p.tripHigh}</span>` : ''}
+          ${p.tripLow!==''&&p.tripLow!==null
+            ? `<span class="px-2 py-0.5 rounded bg-red-100 text-red-700 text-xs font-bold ml-1">L: ${p.tripLow}</span>` : ''}
+          ${!p.tripHigh && !p.tripLow ? '<span class="text-gray-300 text-xs">—</span>' : ''}
+        </td>
+        <td class="p-3 text-center text-xs">
+          <div class="flex flex-col gap-0.5 text-gray-400">
+            ${p.alarmHigh ? `<span>≥${p.alarmHigh} → <span class="text-red-600 font-semibold">ALARM</span></span>` : ''}
+            ${p.alarmHigh ? `<span>≥${Math.round(p.alarmHigh*0.9*100)/100} → <span class="text-orange-500">WARN</span></span>` : ''}
+            ${p.tripHigh  ? `<span>≥${p.tripHigh} → <span class="text-red-800 font-bold">TRIP</span></span>` : ''}
+            ${p.alarmLow  ? `<span>≤${p.alarmLow} → <span class="text-red-600 font-semibold">ALARM</span></span>` : ''}
+            ${p.tripLow   ? `<span>≤${p.tripLow} → <span class="text-red-800 font-bold">TRIP</span></span>` : ''}
+          </div>
+        </td>
+        <td class="p-3 text-center">
+          <span class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">Active</span>
+        </td>
+        <td class="p-3 text-center">
+          <div class="flex gap-1 justify-center">
+            <button onclick="openEditModal(${JSON.stringify(p).replace(/"/g,'&quot;')})"
+              class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">✏️ Edit</button>
+            <button onclick="disableParam(${p.parameterId})"
+              class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs hover:bg-red-200">✕</button>
+          </div>
+        </td>
       </tr>`).join("");
-  } catch(e){alert("Error: "+e.message);}
+
+    return `
+      <div class="bg-white rounded-xl shadow mb-4 overflow-hidden param-group">
+        <div class="bg-slate-700 text-white px-4 py-3 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <span class="font-bold">${grp}</span>
+            <span class="text-xs opacity-60">${gparams.length} parameters</span>
+          </div>
+          <button onclick="openAddParamModal('${grp}')"
+            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs px-3 py-1 rounded-lg transition">
+            ➕ Add Parameter
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b text-xs">
+                <th class="p-3 text-left text-gray-500 font-medium">Parameter</th>
+                <th class="p-3 text-center text-gray-400">Unit</th>
+                <th class="p-3 text-center text-orange-600">Alarm Limits</th>
+                <th class="p-3 text-center text-red-700">Trip Limits</th>
+                <th class="p-3 text-center text-gray-500">Status Logic</th>
+                <th class="p-3 text-center text-gray-400">Active</th>
+                <th class="p-3 text-center text-gray-400">Actions</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join("");
 }
+
+function filterParams(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll(".param-row").forEach(r => {
+    r.style.display = r.dataset.search.includes(q) ? "" : "none";
+  });
+  // Show/hide group blocks if all rows hidden
+  document.querySelectorAll(".param-group").forEach(g => {
+    const visible = [...g.querySelectorAll(".param-row")].some(r => r.style.display !== "none");
+    g.style.display = visible ? "" : "none";
+  });
+}
+
+// ── EDIT PARAMETER MODAL ──
+let editingParam = null;
+
+function openEditModal(p) {
+  editingParam = p;
+  document.getElementById("ep-id").value   = p.parameterId;
+  document.getElementById("ep-name").value = p.parameterName;
+  document.getElementById("ep-unit").value = p.unit || "";
+  document.getElementById("ep-ah").value   = p.alarmHigh  !== "" && p.alarmHigh  !== null ? p.alarmHigh  : "";
+  document.getElementById("ep-th").value   = p.tripHigh   !== "" && p.tripHigh   !== null ? p.tripHigh   : "";
+  document.getElementById("ep-al").value   = p.alarmLow   !== "" && p.alarmLow   !== null ? p.alarmLow   : "";
+  document.getElementById("ep-tl").value   = p.tripLow    !== "" && p.tripLow    !== null ? p.tripLow    : "";
+  updateEditPreview();
+  document.getElementById("edit-param-modal").classList.remove("hidden");
+}
+
+function updateEditPreview() {
+  const ah = document.getElementById("ep-ah").value;
+  const th = document.getElementById("ep-th").value;
+  const al = document.getElementById("ep-al").value;
+  const tl = document.getElementById("ep-tl").value;
+  let lines = [];
+  if (th) lines.push(`Value <b>≥ ${th}</b> → <span class="text-red-800 font-bold">TRIP</span>`);
+  if (ah) lines.push(`Value <b>≥ ${ah}</b> → <span class="text-red-600 font-semibold">ALARM</span>`);
+  if (ah) lines.push(`Value <b>≥ ${Math.round(ah*0.9*100)/100}</b> (90%) → <span class="text-orange-500">WARNING</span>`);
+  if (ah) lines.push(`Value <b>≥ ${Math.round(ah*0.7*100)/100}</b> (70%) → <span class="text-yellow-600">CAUTION</span>`);
+  if (tl) lines.push(`Value <b>≤ ${tl}</b> → <span class="text-red-800 font-bold">TRIP</span>`);
+  if (al) lines.push(`Value <b>≤ ${al}</b> → <span class="text-red-600 font-semibold">ALARM</span>`);
+  if (al) lines.push(`Value <b>≤ ${Math.round(al*0.9*100)/100}</b> (90%) → <span class="text-orange-500">WARNING</span>`);
+  if (!lines.length) lines.push("No limits set — all values will show NORMAL");
+  document.getElementById("ep-preview").innerHTML = lines.join("<br>");
+}
+
+// Add live preview update on input
+["ep-ah","ep-th","ep-al","ep-tl"].forEach(id => {
+  document.addEventListener("input", e => { if(e.target.id === id) updateEditPreview(); });
+});
+
+function closeEditModal() {
+  document.getElementById("edit-param-modal").classList.add("hidden");
+  editingParam = null;
+}
+
+async function saveParamEdit() {
+  const id   = document.getElementById("ep-id").value;
+  const name = document.getElementById("ep-name").value.trim();
+  if (!name) { alert("Parameter name required"); return; }
+
+  const updated = {
+    ...editingParam,
+    parameterName : name,
+    unit          : document.getElementById("ep-unit").value.trim(),
+    alarmHigh     : document.getElementById("ep-ah").value !== "" ? Number(document.getElementById("ep-ah").value) : "",
+    tripHigh      : document.getElementById("ep-th").value !== "" ? Number(document.getElementById("ep-th").value) : "",
+    alarmLow      : document.getElementById("ep-al").value !== "" ? Number(document.getElementById("ep-al").value) : "",
+    tripLow       : document.getElementById("ep-tl").value !== "" ? Number(document.getElementById("ep-tl").value) : "",
+  };
+
+  try {
+    const r = await api("updateParameter", {parameterId: id, parameter: updated});
+    if (r && r.success) {
+      closeEditModal();
+      loadParameters();
+    } else {
+      alert("Error: " + (r ? r.message : "Unknown"));
+    }
+  } catch(e) { alert("Error: " + e.message); }
+}
+
+// ── ADD PARAMETER MODAL ──
+let addingToGroup = "";
+
+function openAddParamModal(group) {
+  addingToGroup = group;
+  document.getElementById("ap-group").value = group;
+  document.getElementById("ap-name").value  = "";
+  document.getElementById("ap-unit").value  = "";
+  document.getElementById("ap-order").value = "";
+  document.getElementById("ap-ah").value    = "";
+  document.getElementById("ap-th").value    = "";
+  document.getElementById("ap-al").value    = "";
+  document.getElementById("ap-tl").value    = "";
+  document.getElementById("add-param-modal").classList.remove("hidden");
+}
+
+function closeAddParamModal() {
+  document.getElementById("add-param-modal").classList.add("hidden");
+}
+
+async function saveNewParam() {
+  const grp  = document.getElementById("ap-group").value.trim();
+  const name = document.getElementById("ap-name").value.trim();
+  const uid  = document.getElementById("param-unit").value;
+  const sys  = document.getElementById("param-system").value;
+  if (!grp || !name) { alert("Group and Parameter name required"); return; }
+
+  const param = {
+    unitId        : uid,
+    system        : sys,
+    groupName     : grp,
+    parameterName : name,
+    unit          : document.getElementById("ap-unit").value.trim(),
+    alarmHigh     : document.getElementById("ap-ah").value !== "" ? Number(document.getElementById("ap-ah").value) : "",
+    tripHigh      : document.getElementById("ap-th").value !== "" ? Number(document.getElementById("ap-th").value) : "",
+    alarmLow      : document.getElementById("ap-al").value !== "" ? Number(document.getElementById("ap-al").value) : "",
+    tripLow       : document.getElementById("ap-tl").value !== "" ? Number(document.getElementById("ap-tl").value) : "",
+    displayOrder  : document.getElementById("ap-order").value ? Number(document.getElementById("ap-order").value) : 99,
+  };
+
+  try {
+    const r = await api("saveParameter", {parameter: param});
+    if (r && r.success) {
+      closeAddParamModal();
+      loadParameters();
+    } else {
+      alert("Error: " + (r ? r.message : "Unknown"));
+    }
+  } catch(e) { alert("Error: " + e.message); }
+}
+
+// ── ADD EQUIPMENT MODAL ──
+function showAddEquipModal() {
+  document.getElementById("ae-name").value = "";
+  document.getElementById("ae-unit").value = document.getElementById("param-unit").value;
+  document.getElementById("ae-system").value = document.getElementById("param-system").value;
+  document.getElementById("add-equip-modal").classList.remove("hidden");
+}
+
+function closeAddEquipModal() {
+  document.getElementById("add-equip-modal").classList.add("hidden");
+}
+
+async function saveNewEquipment() {
+  const name = document.getElementById("ae-name").value.trim();
+  const uid  = document.getElementById("ae-unit").value;
+  const sys  = document.getElementById("ae-system").value;
+  if (!name) { alert("Equipment name required"); return; }
+
+  // Add a placeholder parameter to create the group
+  const param = {
+    unitId        : uid,
+    system        : sys,
+    groupName     : name,
+    parameterName : "— Add parameters using ➕ Add Parameter —",
+    unit          : "",
+    alarmHigh     : "",
+    tripHigh      : "",
+    alarmLow      : "",
+    tripLow       : "",
+    displayOrder  : 1
+  };
+
+  try {
+    const r = await api("saveParameter", {parameter: param});
+    if (r && r.success) {
+      closeAddEquipModal();
+      // Switch filter to the new unit/system and reload
+      document.getElementById("param-unit").value   = uid;
+      document.getElementById("param-system").value = sys;
+      loadParameters();
+      alert(`✅ Equipment "${name}" created under ${uid} / ${sys}\nNow use ➕ Add Parameter to add its parameters.`);
+    } else {
+      alert("Error: " + (r ? r.message : "Unknown"));
+    }
+  } catch(e) { alert("Error: " + e.message); }
+}
+
 async function disableParam(id) {
-  if(!confirm("Disable?"))return;
-  const r=await api("disableParameter",{parameterId:id});
-  if(r&&r.success){alert("Done");loadParameters();}
+  if (!confirm("Disable this parameter?")) return;
+  const r = await api("disableParameter", {parameterId: id});
+  if (r && r.success) { loadParameters(); }
+  else alert("Error: " + (r ? r.message : "Unknown"));
 }
-function cloneParameters() {
-  const s=prompt("Source unit (e.g. U6):");
-  const t=prompt("Target unit (e.g. U1):");
-  if(s&&t)alert("Clone "+s+"→"+t+"\n(Backend implementation pending)");
+
+async function cloneParameters() {
+  const s = prompt("Source unit (e.g. U6):");
+  const t = prompt("Target unit (e.g. U1):");
+  if (!s || !t) return;
+  alert("Clone " + s + " → " + t + "\nThis will be implemented in the next update.");
 }
 </script>
 </body>
