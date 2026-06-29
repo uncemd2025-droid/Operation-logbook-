@@ -16,32 +16,31 @@
 
 /* GLASS CARD */
 .eq-card {
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.6);
-  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid #E8EDF2;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1.5px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(21,101,192,0.08), 0 1px 3px rgba(0,0,0,0.06);
   transition: box-shadow 0.2s, transform 0.2s;
 }
 .eq-card:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(21,101,192,0.15), 0 2px 6px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
 }
 
 /* CARD HEADER COLORS — vivid solid for contrast */
-.ch-red    { background:linear-gradient(135deg,#EF4444,#DC2626); color:white; }
-.ch-blue   { background:linear-gradient(135deg,#3B82F6,#2563EB); color:white; }
-.ch-cyan   { background:linear-gradient(135deg,#06B6D4,#0891B2); color:white; }
-.ch-green  { background:linear-gradient(135deg,#22C55E,#16A34A); color:white; }
+/* NTPC-inspired card header palette */
+.ch-red    { background:linear-gradient(135deg,#C62828,#B71C1C); color:white; }
+.ch-blue   { background:linear-gradient(135deg,#1565C0,#0D47A1); color:white; }
+.ch-cyan   { background:linear-gradient(135deg,#0277BD,#01579B); color:white; }
+.ch-green  { background:linear-gradient(135deg,#2E7D32,#1B5E20); color:white; }
 .ch-amber  { background:linear-gradient(135deg,#F59E0B,#D97706); color:white; }
-.ch-violet { background:linear-gradient(135deg,#8B5CF6,#7C3AED); color:white; }
-.ch-teal   { background:linear-gradient(135deg,#14B8A6,#0D9488); color:white; }
-.ch-indigo { background:linear-gradient(135deg,#6366F1,#4F46E5); color:white; }
-.ch-slate  { background:linear-gradient(135deg,#475569,#334155); color:white; }
-.ch-orange { background:linear-gradient(135deg,#F97316,#EA580C); color:white; }
-.ch-pink   { background:linear-gradient(135deg,#EC4899,#DB2777); color:white; }
+.ch-violet { background:linear-gradient(135deg,#6A1B9A,#4A148C); color:white; }
+.ch-teal   { background:linear-gradient(135deg,#00695C,#004D40); color:white; }
+.ch-indigo { background:linear-gradient(135deg,#283593,#1A237E); color:white; }
+.ch-slate  { background:linear-gradient(135deg,#37474F,#263238); color:white; }
+.ch-orange { background:linear-gradient(135deg,#E65100,#BF360C); color:white; }
+.ch-pink   { background:linear-gradient(135deg,#AD1457,#880E4F); color:white; }
 
 /* PAGE VISIBILITY */
 [data-page] { display:none; }
@@ -78,7 +77,7 @@
 .tab-inactive:hover { background:#E2E8F0; }
 </style>
 </head>
-<body class="font-sans" style="background:linear-gradient(135deg,#e0e7ff 0%,#f0fdf4 50%,#fef3c7 100%);min-height:100vh;">
+<body class="font-sans" style="background:#F0F4F8;min-height:100vh;">
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzMdAP5xY6Sku1UUgvUtDnrs_siFvsVcwtIgGIbR2FUboAiz-0mBqO-W_ttHgT3XkMvRg/exec";
@@ -266,7 +265,7 @@ const TG_CARDS = [
 
 <!-- LOGIN -->
 <div data-page="login" class="active min-h-screen flex fixed inset-0 z-50 bg-white">
-  <div class="hidden lg:flex w-1/2 bg-blue-700 text-white items-center justify-center">
+  <div class="hidden lg:flex w-1/2 text-white items-center justify-center" style="background:linear-gradient(160deg,#1565C0 0%,#1B5E20 100%);">
     <div class="text-center px-12">
       <div class="text-6xl mb-6">⚡</div>
       <h1 class="text-5xl font-bold mb-3">Power Plant</h1>
@@ -288,7 +287,7 @@ const TG_CARDS = [
         onkeydown="if(event.key==='Enter')doLogin()"
         class="w-full border rounded-lg p-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
       <button id="login-btn" onclick="doLogin()"
-        class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold transition">Login</button>
+        style="background:linear-gradient(90deg,#1565C0,#2E7D32);border:none;" class="w-full text-white py-3 rounded-lg font-semibold transition hover:opacity-90">Login</button>
       <div id="login-error" class="text-red-500 mt-4 text-sm hidden text-center"></div>
       <div id="login-loading" class="text-blue-500 mt-4 text-sm hidden text-center">⏳ Logging in…</div>
     </div>
@@ -327,16 +326,16 @@ const TG_CARDS = [
         <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Navigation</div>
       </div>
       <nav class="p-2 flex-1 overflow-y-auto">
-        <button onclick="showPage('dashboard')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📊 Dashboard</button>
-        <button onclick="showPage('shift-entry')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📝 Shift Entry</button>
-        <button onclick="showPage('trends')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">📈 Trends</button>
+        <button onclick="showPage('dashboard')" style="border-left:3px solid transparent;" class="nav-btn w-full text-left px-3 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-700 mb-0.5 transition-all hover:bg-green-50 hover:border-l-green-600 rounded-r-lg">📊 Dashboard</button>
+        <button onclick="showPage('shift-entry')" style="border-left:3px solid transparent;" class="nav-btn w-full text-left px-3 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-700 mb-0.5 transition-all hover:bg-green-50 hover:border-l-green-600 rounded-r-lg">📝 Shift Entry</button>
+        <button onclick="showPage('trends')" style="border-left:3px solid transparent;" class="nav-btn w-full text-left px-3 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-700 mb-0.5 transition-all hover:bg-green-50 hover:border-l-green-600 rounded-r-lg">📈 Trends</button>
         <div id="nav-si" class="hidden">
-          <button onclick="showPage('approvals')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">✅ Approvals</button>
+          <button onclick="showPage('approvals')" style="border-left:3px solid transparent;" class="nav-btn w-full text-left px-3 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-700 mb-0.5 transition-all hover:bg-green-50 hover:border-l-green-600 rounded-r-lg">✅ Approvals</button>
         </div>
         <div id="nav-admin" class="hidden">
           <div class="px-3 pt-3 pb-1 text-xs text-gray-400 uppercase tracking-wider font-semibold">Admin</div>
-          <button onclick="showPage('admin-users')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">👥 Users</button>
-          <button onclick="showPage('admin-parameters')" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-50 flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">⚙️ Parameters</button>
+          <button onclick="showPage('admin-users')" style="border-left:3px solid transparent;" class="nav-btn w-full text-left px-3 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-700 mb-0.5 transition-all hover:bg-green-50 hover:border-l-green-600 rounded-r-lg">👥 Users</button>
+          <button onclick="showPage('admin-parameters')" style="border-left:3px solid transparent;" class="nav-btn w-full text-left px-3 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-700 mb-0.5 transition-all hover:bg-green-50 hover:border-l-green-600 rounded-r-lg">⚙️ Parameters</button>
         </div>
       </nav>
     </aside>
@@ -353,17 +352,17 @@ const TG_CARDS = [
 
         <!-- Summary cards — top row -->
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-5" id="db-cards-row">
-          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
+          <div class="bg-white rounded-xl p-4" style="box-shadow:0 2px 12px rgba(0,0,0,.08);border-left:4px solid #DC2626;">
             <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Current Alarms</div>
             <div id="db-alarms" class="text-3xl font-bold text-red-600">--</div>
             <div class="text-xs text-gray-400 mt-1">Today</div>
           </div>
-          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-orange-500">
+          <div class="bg-white rounded-xl p-4" style="box-shadow:0 2px 12px rgba(0,0,0,.08);border-left:4px solid #F59E0B;">
             <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Trips Today</div>
             <div id="db-trips" class="text-3xl font-bold text-orange-600">--</div>
             <div class="text-xs text-gray-400 mt-1">Equipment trips</div>
           </div>
-          <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500" id="db-approvals-card">
+          <div class="bg-white rounded-xl p-4" id="db-approvals-card" style="box-shadow:0 2px 12px rgba(0,0,0,.08);border-left:4px solid #2E7D32;">
             <div class="text-gray-500 text-xs uppercase tracking-wide mb-1">Pending Approvals</div>
             <div id="db-approvals" class="text-3xl font-bold text-yellow-600">--</div>
             <div class="text-xs text-gray-400 mt-1">Awaiting review</div>
@@ -397,8 +396,8 @@ const TG_CARDS = [
         <div class="bg-white rounded-xl shadow p-4">
           <h2 class="font-semibold mb-3 text-gray-700 text-sm">Quick Actions</h2>
           <div class="flex flex-wrap gap-2">
-            <button onclick="showPage('shift-entry')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">📝 Enter Shift Data</button>
-            <button onclick="showPage('trends')" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">📈 View Trends</button>
+            <button onclick="showPage('shift-entry')" style="background:#1565C0;" class="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">📝 Enter Shift Data</button>
+            <button onclick="showPage('trends')" style="background:#2E7D32;" class="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">📈 View Trends</button>
           </div>
         </div>
       </div>
@@ -409,7 +408,7 @@ const TG_CARDS = [
         <!-- Page header -->
         <div class="flex justify-between items-start mb-4 flex-wrap gap-3">
           <div>
-            <h1 class="text-2xl font-bold">Shift Log Entry</h1>
+            <h1 class="text-2xl font-bold" style="border-left:4px solid #F59E0B;padding-left:12px;">Shift Log Entry</h1>
             <div class="text-sm text-gray-500 mt-0.5">
               Unit: <span id="se-unit-lbl" class="font-semibold text-blue-700">—</span>
               &nbsp;|&nbsp; System: <span id="se-sys-lbl" class="font-semibold text-blue-700">—</span>
@@ -419,8 +418,8 @@ const TG_CARDS = [
           <div class="flex gap-2 flex-wrap items-center">
             <span id="se-msg" class="text-xs px-3 py-1 rounded-lg hidden"></span>
             <span id="se-count" class="text-xs text-gray-400"></span>
-            <button onclick="saveDraft()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">💾 Save Draft</button>
-            <button onclick="confirmSubmit()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">✅ Submit Shift</button>
+            <button onclick="saveDraft()" style="background:#1565C0;" class="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">💾 Save Draft</button>
+            <button onclick="confirmSubmit()" style="background:#2E7D32;" class="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">✅ Submit Shift</button>
           </div>
         </div>
 
@@ -492,7 +491,7 @@ const TG_CARDS = [
         <h1 class="text-2xl font-bold mb-5">Pending Approvals</h1>
         <div class="bg-white rounded-xl shadow overflow-auto">
           <table class="w-full text-sm">
-            <thead class="bg-slate-800 text-white">
+            <thead style="background:linear-gradient(90deg,#1565C0,#1976D2);" class="text-white">
               <tr>
                 <th class="p-3 text-left">Date</th>
                 <th class="p-3 text-left">Shift</th>
@@ -510,7 +509,7 @@ const TG_CARDS = [
 
       <!-- ══ TRENDS ══ -->
       <div data-page="trends" class="p-4 lg:p-6">
-        <h1 class="text-2xl font-bold mb-5">📈 Parameter Trends</h1>
+        <h1 class="text-2xl font-bold mb-5" style="border-left:4px solid #2E7D32;padding-left:12px;">📈 Parameter Trends</h1>
 
         <!-- Filters -->
         <div class="bg-white rounded-xl shadow p-4 mb-5">
@@ -591,7 +590,7 @@ const TG_CARDS = [
         <!-- Data table -->
         <div class="bg-white rounded-xl shadow overflow-auto" id="tr-table-wrap" style="display:none">
           <table class="w-full text-sm">
-            <thead class="bg-slate-800 text-white">
+            <thead style="background:linear-gradient(90deg,#1565C0,#1976D2);" class="text-white">
               <tr>
                 <th class="p-3 text-left">Date</th>
                 <th class="p-3 text-left">Shift</th>
@@ -633,7 +632,7 @@ const TG_CARDS = [
         </div>
         <div class="bg-white rounded-xl shadow overflow-auto">
           <table class="w-full text-sm">
-            <thead class="bg-slate-800 text-white">
+            <thead style="background:linear-gradient(90deg,#1565C0,#1976D2);" class="text-white">
               <tr>
                 <th class="p-3 text-left">Username</th><th class="p-3 text-left">Name</th>
                 <th class="p-3 text-left">Role</th><th class="p-3 text-left">Access</th>
@@ -648,7 +647,7 @@ const TG_CARDS = [
       <!-- ══ ADMIN PARAMETERS ══ -->
       <div data-page="admin-parameters" class="p-4 lg:p-6">
         <div class="flex justify-between items-center mb-5 flex-wrap gap-3">
-          <h1 class="text-2xl font-bold">Parameter Master</h1>
+          <h1 class="text-2xl font-bold" style="border-left:4px solid #1565C0;padding-left:12px;">Parameter Master</h1>
           <div class="flex gap-2">
             <button onclick="showAddEquipModal()"
               class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 font-medium">
@@ -860,6 +859,13 @@ const TG_CARDS = [
   </div>
 </div>
 
+<!-- NTPC Footer Bar -->
+<div id="ntpc-footer" style="background:linear-gradient(90deg,#1B5E20,#2E7D32);padding:5px 0;text-align:center;position:fixed;bottom:0;left:0;right:0;z-index:30;">
+  <div style="font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:1.5px;font-weight:500;">
+    ⚡ NTPC LIMITED — POWER PLANT DIGITAL LOGBOOK — CONFIDENTIAL OPERATIONS DATA ⚡
+  </div>
+</div>
+
 <!-- SUBMIT MODAL -->
 <div id="submit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
@@ -969,7 +975,7 @@ function bootApp() {
   lp.classList.remove("active"); lp.style.display = "none";
   document.getElementById("main-layout").classList.remove("hidden");
   document.getElementById("hdr-user").textContent = CURRENT_USER.name;
-  document.getElementById("hdr-role").textContent = CURRENT_USER.role;
+  const hrEl = document.getElementById("hdr-role"); if(hrEl) hrEl.textContent = CURRENT_USER.role;
   if (CURRENT_USER.role === "Admin" || CURRENT_USER.role === "Shift Incharge") {
     document.getElementById("nav-si").classList.remove("hidden");
   }
@@ -1418,14 +1424,14 @@ function renderMultiCard(card, unitId, system, date, shift, isLocked) {
     <div class="overflow-x-auto">
     <table class="w-full text-xs">
       <thead>
-        <tr class="bg-slate-800 text-white border-b">
+        <tr style="background:linear-gradient(90deg,#1565C0,#1976D2);" class="text-white border-b">
           <th class="px-3 py-2 text-left" rowspan="2">Parameter</th>
           <th class="px-2 py-2 text-center text-gray-300" rowspan="2">Unit</th>
           <th class="px-2 py-2 text-center text-orange-300" rowspan="2">Alarm</th>
           <th class="px-2 py-2 text-center text-red-300 font-bold" rowspan="2">Trip</th>
           ${unitHeaders}
         </tr>
-        <tr class="bg-slate-700 text-white">${subHeaders}</tr>
+        <tr style="background:#1976D2;" class="text-white">${subHeaders}</tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
@@ -1723,7 +1729,7 @@ async function loadApprovals() {
           <button onclick="viewShift('${x.date}','${x.shift}','${x.unitId}')"
             class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs hover:bg-blue-200 font-medium">👁 View</button>
           <button onclick="approveShift('${x.date}','${x.shift}','${x.unitId}')"
-            class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 font-medium">✅ Approve</button>
+            style="background:#2E7D32;" class="text-white px-3 py-1 rounded text-xs font-medium hover:opacity-90">✅ Approve</button>
           <button onclick="lockShift('${x.date}','${x.shift}','${x.unitId}')"
             class="bg-slate-600 text-white px-3 py-1 rounded text-xs hover:bg-slate-700 font-medium">🔒 Lock</button>
         </td>
