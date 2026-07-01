@@ -47,6 +47,217 @@
 [data-page].active { display:block; }
 #sidebar-overlay { display:none; }
 
+/* ══ ZERODHA / GROWW SHIFT ENTRY THEME ══ */
+#shift-entry-wrap {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #F2F2F2;
+  min-height: calc(100vh - 48px);
+}
+
+/* META STRIP */
+.se-meta-strip {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 20px;
+  height: 38px;
+  border-bottom: 1px solid #F0F0F0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.se-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 16px;
+  margin-right: 16px;
+  border-right: 1px solid #F0F0F0;
+  white-space: nowrap;
+}
+.se-meta-item:last-child { border-right: none; margin-left: auto; }
+.se-meta-label { font-size: 10px; color: #9E9E9E; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+.se-meta-val   { font-size: 11px; color: #1a1a1a; font-weight: 600; }
+.se-meta-val.warn { color: #C62828; }
+.se-meta-val.ok   { color: #00A651; }
+.se-shift-pill {
+  font-size: 10px; font-weight: 700; padding: 2px 9px;
+  border-radius: 3px; cursor: pointer; transition: all .12s;
+}
+.se-shift-pill.off { background: #F5F5F5; color: #9E9E9E; }
+.se-shift-pill.on  { background: #387ED1; color: #fff; }
+.se-prog-bar { width: 70px; height: 3px; background: #E8E8E8; border-radius: 2px; overflow: hidden; }
+.se-prog-fill { height: 100%; background: #387ED1; border-radius: 2px; transition: width .3s; }
+
+/* EQUIPMENT TABS */
+.se-eq-tabs {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #E8E8E8;
+  overflow-x: auto;
+  gap: 0;
+}
+.se-eq-tab {
+  font-size: 11px; font-weight: 600; color: #9E9E9E;
+  padding: 10px 14px; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s; white-space: nowrap; letter-spacing: .2px;
+}
+.se-eq-tab:hover { color: #424242; }
+.se-eq-tab.on    { color: #387ED1; border-bottom-color: #387ED1; }
+.se-tab-search   { margin-left: auto; display: flex; align-items: center; padding-left: 12px; }
+.se-tab-search input {
+  font-size: 11px; padding: 4px 10px;
+  border: 1px solid #E8E8E8; border-radius: 4px;
+  background: #F8F8F8; color: #424242; outline: none; width: 140px;
+}
+.se-tab-search input:focus { border-color: #387ED1; background: #fff; }
+
+/* CARDS AREA */
+.se-cards { padding: 14px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Z-CARD */
+.z-card {
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+}
+.z-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid #F5F5F5;
+}
+.z-card-title { font-size: 11px; font-weight: 700; color: #1a1a1a; letter-spacing: .4px; text-transform: uppercase; }
+.z-card-meta  { display: flex; align-items: center; gap: 8px; }
+.z-card-count { font-size: 10px; color: #9E9E9E; }
+.z-alarm-chip {
+  font-size: 9px; font-weight: 700; padding: 2px 7px;
+  border-radius: 3px; letter-spacing: .3px;
+}
+.z-chip-red { background: #FFEBEE; color: #C62828; }
+.z-chip-grn { background: #E8F5E9; color: #1B5E20; }
+
+/* Z-TABLE shared */
+table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
+.zt thead th {
+  font-size: 9px; font-weight: 600; color: #9E9E9E;
+  text-transform: uppercase; letter-spacing: .5px;
+  padding: 6px 12px; border-bottom: 1px solid #F0F0F0;
+  background: #FAFAFA; white-space: nowrap;
+}
+.zt thead th.ra { text-align: right; }
+.zt thead th.ca { text-align: center; }
+.zt tbody td {
+  padding: 7px 12px; border-bottom: 1px solid #F5F5F5;
+  vertical-align: middle; color: #1a1a1a;
+}
+.zt tbody tr:last-child td { border-bottom: none; }
+.zt tbody tr:hover td { background: #FAFAFA; }
+.zt td.pn { font-size: 11px; color: #424242; width: 180px; }
+.zt td.un { font-size: 10px; color: #BDBDBD; text-align: right; width: 46px; }
+.zt td.al { font-size: 11px; text-align: right; width: 56px; font-variant-numeric: tabular-nums; color: #C62828; }
+.zt td.tl { font-size: 11px; text-align: right; width: 56px; font-variant-numeric: tabular-nums; color: #1565C0; font-weight: 600; }
+.zt td.lh { color: #C62828; } /* high limit */
+.zt td.ll { color: #1565C0; } /* low limit */
+.zt td.vc { text-align: center; width: 88px; }
+.zt td.sc { text-align: center; width: 82px; }
+.zt td.rc { min-width: 110px; }
+.zt td.bk { text-align: center; width: 24px; }
+
+/* VALUE INPUT */
+.z-val {
+  width: 74px; padding: 4px 7px; font-size: 12px; font-weight: 500;
+  border: 1px solid #E0E0E0; border-radius: 4px;
+  background: #F8F8F8; color: #1a1a1a;
+  text-align: right; outline: none;
+  font-variant-numeric: tabular-nums;
+  transition: border .12s, background .12s;
+}
+.z-val:focus { border-color: #387ED1; background: #fff; }
+.z-val.s-ok  { border-color: #A5D6A7; background: #F1F8F1; }
+.z-val.s-cau { border-color: #FFE082; background: #FFFDE7; }
+.z-val.s-war { border-color: #FFCC80; background: #FFF8F0; }
+.z-val.s-al  { border-color: #EF9A9A; background: #FFF5F5; color: #C62828; }
+.z-val.s-tr  { border-color: #C62828; background: #FFEBEE; color: #B71C1C; font-weight: 700; }
+
+/* REMARK INPUT */
+.z-rem {
+  width: 100%; font-size: 11px; padding: 4px 7px;
+  border: 1px solid transparent; border-radius: 4px;
+  background: transparent; color: #424242; outline: none;
+  transition: border .12s, background .12s;
+}
+.z-rem:focus { border-color: #E0E0E0; background: #F8F8F8; }
+.z-rem.req   { border-color: #FFCDD2 !important; background: #FFF5F5; color: #C62828; }
+.z-rem.req::placeholder { color: #EF9A9A; }
+
+/* STATUS PILL */
+.zp {
+  font-size: 9px; font-weight: 700; padding: 2px 6px;
+  border-radius: 3px; letter-spacing: .3px;
+  display: inline-block; text-transform: uppercase;
+}
+.zp-n { background: #E8F5E9; color: #1B5E20; }
+.zp-c { background: #FFF8E1; color: #F57F17; }
+.zp-w { background: #FFF3E0; color: #E65100; }
+.zp-a { background: #FFEBEE; color: #C62828; }
+.zp-t { background: #C62828; color: #fff; }
+.zp-e { color: #BDBDBD; font-size: 10px; font-weight: 400; }
+
+/* MULTI-UNIT TABLE */
+.z-unit-band {
+  font-size: 9px; font-weight: 700; color: #387ED1;
+  letter-spacing: .5px; text-transform: uppercase;
+  text-align: center; padding: 5px 0;
+  background: #EEF4FB; border-left: 1px solid #E8E8E8;
+}
+.z-unit-band:first-of-type { border-left: none; }
+.z-mc { border-left: 1px solid #F0F0F0; padding: 6px 7px; text-align: center; }
+.z-mc-r { border-left: 1px solid #F0F0F0; padding: 6px 7px; }
+.z-mc-first { border-left: 1px solid #E8E8E8 !important; }
+.z-mini {
+  width: 58px; padding: 3px 5px; font-size: 11px; font-weight: 500;
+  border: 1px solid #E0E0E0; border-radius: 3px;
+  background: #F8F8F8; color: #1a1a1a;
+  text-align: right; outline: none; font-variant-numeric: tabular-nums;
+}
+.z-mini:focus { border-color: #387ED1; background: #fff; }
+.z-mini.s-al  { border-color: #EF9A9A; background: #FFF5F5; color: #C62828; }
+.z-mini.s-tr  { border-color: #C62828; background: #FFEBEE; color: #B71C1C; font-weight: 700; }
+.z-mini-rem {
+  width: 100%; min-width: 70px; font-size: 10px; padding: 3px 5px;
+  border: 1px solid transparent; border-radius: 3px;
+  background: transparent; color: #424242; outline: none;
+}
+.z-mini-rem:focus { border-color: #E0E0E0; background: #F8F8F8; }
+.z-mini-rem.req { border-color: #FFCDD2; background: #FFF5F5; color: #C62828; }
+
+/* LEGEND */
+.se-legend {
+  display: flex; align-items: center; gap: 14px;
+  padding: 9px 20px; background: #fff;
+  border-top: 1px solid #F0F0F0; margin-top: 4px;
+  flex-wrap: wrap;
+}
+.se-leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #9E9E9E; }
+.se-leg-dot { width: 7px; height: 7px; border-radius: 50%; }
+.se-leg-div { width: 1px; height: 10px; background: #E8E8E8; }
+
+/* LOADING */
+.se-loading-box {
+  background: #fff; border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  padding: 48px; text-align: center;
+  color: #9E9E9E; font-size: 12px;
+}
+
+/* Saved tick */
+.z-tick { color: #00A651; font-weight: 700; font-size: 13px; }
+.z-circ { color: #E0E0E0; font-size: 12px; }
+
 /* REMARK REQUIRED */
 .remark-req { border:2px solid #DC2626 !important; background:#FFF5F5; }
 
@@ -403,85 +614,114 @@ const TG_CARDS = [
       </div>
 
       <!-- ══ SHIFT ENTRY ══ -->
-      <div data-page="shift-entry" class="p-4 lg:p-6">
+      <div data-page="shift-entry" id="shift-entry-wrap" style="padding:0">
 
-        <!-- Page header -->
-        <div class="flex justify-between items-start mb-4 flex-wrap gap-3">
-          <div>
-            <h1 class="text-2xl font-bold" style="border-left:4px solid #F59E0B;padding-left:12px;">Shift Log Entry</h1>
-            <div class="text-sm text-gray-500 mt-0.5">
-              Unit: <span id="se-unit-lbl" class="font-semibold text-blue-700">—</span>
-              &nbsp;|&nbsp; System: <span id="se-sys-lbl" class="font-semibold text-blue-700">—</span>
-              &nbsp;|&nbsp; <span id="se-shift-badge" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold">Not Loaded</span>
-            </div>
+        <!-- TOP ACTION BAR -->
+        <div style="background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:46px;border-bottom:1px solid #E8E8E8;">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:12px;font-weight:700;color:#1a1a1a;letter-spacing:-.2px">Shift Log Entry</span>
+            <span style="font-size:10px;color:#9E9E9E;">
+              <span id="se-unit-lbl">—</span> &nbsp;·&nbsp;
+              <span id="se-sys-lbl">—</span>
+            </span>
+            <span id="se-shift-badge" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;background:#FFF3E0;color:#E65100;letter-spacing:.3px">DRAFT</span>
           </div>
-          <div class="flex gap-2 flex-wrap items-center">
+          <div style="display:flex;align-items:center;gap:8px">
             <span id="se-msg" class="text-xs px-3 py-1 rounded-lg hidden"></span>
-            <span id="se-count" class="text-xs text-gray-400"></span>
-            <button onclick="saveDraft()" style="background:#1565C0;" class="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">💾 Save Draft</button>
-            <button onclick="confirmSubmit()" style="background:#2E7D32;" class="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">✅ Submit Shift</button>
+            <button onclick="saveDraft()"
+              style="font-size:11px;font-weight:600;padding:6px 14px;border-radius:4px;border:1px solid #D0D0D0;background:#fff;color:#424242;cursor:pointer;letter-spacing:.2px"
+              onmouseover="this.style.background='#F5F5F5'" onmouseout="this.style.background='#fff'">
+              Save draft
+            </button>
+            <button onclick="confirmSubmit()"
+              style="font-size:11px;font-weight:600;padding:6px 14px;border-radius:4px;border:none;background:#00A651;color:#fff;cursor:pointer;letter-spacing:.2px"
+              onmouseover="this.style.background='#008F46'" onmouseout="this.style.background='#00A651'">
+              Submit shift
+            </button>
           </div>
         </div>
 
-        <!-- Filter bar -->
-        <div class="bg-white rounded-xl shadow p-4 mb-5">
-          <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-            <input type="date" id="se-date" class="border rounded-lg p-2 text-sm col-span-1">
-            <select id="se-shift" class="border rounded-lg p-2 text-sm">
-              <option value="A">A Shift (06-14)</option>
-              <option value="B">B Shift (14-22)</option>
-              <option value="C">C Shift (22-06)</option>
+        <!-- META STRIP -->
+        <div class="se-meta-strip">
+          <div class="se-meta-item">
+            <span class="se-meta-label">Date</span>
+            <input type="date" id="se-date"
+              style="font-size:11px;font-weight:600;color:#1a1a1a;border:none;background:transparent;outline:none;cursor:pointer;padding:0">
+          </div>
+          <div class="se-meta-item">
+            <span class="se-meta-label">Shift</span>
+            <div style="display:flex;gap:3px">
+              <span class="se-shift-pill on" id="spill-A" onclick="pickShift('A')">A</span>
+              <span class="se-shift-pill off" id="spill-B" onclick="pickShift('B')">B</span>
+              <span class="se-shift-pill off" id="spill-C" onclick="pickShift('C')">C</span>
+            </div>
+          </div>
+          <div class="se-meta-item">
+            <span class="se-meta-label">Unit</span>
+            <select id="se-unit" style="font-size:11px;font-weight:600;color:#1a1a1a;border:none;background:transparent;outline:none;cursor:pointer"></select>
+          </div>
+          <div class="se-meta-item">
+            <span class="se-meta-label">System</span>
+            <select id="se-system" style="font-size:11px;font-weight:600;color:#1a1a1a;border:none;background:transparent;outline:none;cursor:pointer">
+              <option value="SG">SG</option>
+              <option value="TG">TG</option>
             </select>
-            <select id="se-unit" class="border rounded-lg p-2 text-sm"></select>
-            <select id="se-system" class="border rounded-lg p-2 text-sm">
-              <option value="SG">SG — Steam Generator</option>
-              <option value="TG">TG — Turbine Generator</option>
-            </select>
-            <input id="se-search" class="border rounded-lg p-2 text-sm col-span-1" placeholder="🔍 Search equipment"
-              oninput="filterCards(this.value)">
-            <button onclick="loadShiftEntry()" class="bg-slate-700 text-white rounded-lg text-sm hover:bg-slate-800 px-3 col-span-1">Load Parameters</button>
+          </div>
+          <div class="se-meta-item">
+            <span class="se-meta-label">Operator</span>
+            <span class="se-meta-val" id="se-operator-name">—</span>
+          </div>
+          <div class="se-meta-item">
+            <span class="se-meta-label">Alarms</span>
+            <span class="se-meta-val warn" id="se-alarm-count">—</span>
+          </div>
+          <div class="se-meta-item">
+            <span class="se-meta-label">Trips</span>
+            <span class="se-meta-val warn" id="se-trip-count">—</span>
+          </div>
+          <div class="se-meta-item" style="border-right:none;margin-left:auto">
+            <span class="se-meta-label">Progress</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="se-prog-bar"><div class="se-prog-fill" id="se-prog-fill" style="width:0%"></div></div>
+              <span class="se-meta-val" id="se-count">0 / 0</span>
+            </div>
+          </div>
+          <div style="padding-left:12px">
+            <button onclick="loadShiftEntry()"
+              style="font-size:10px;font-weight:600;padding:4px 12px;border-radius:3px;border:1px solid #387ED1;background:transparent;color:#387ED1;cursor:pointer;letter-spacing:.3px;text-transform:uppercase"
+              onmouseover="this.style.background='#EEF4FB'" onmouseout="this.style.background='transparent'">
+              Load
+            </button>
           </div>
         </div>
 
-        <!-- Card grid -->
-        <div id="se-loading" class="hidden bg-white rounded-xl shadow p-12 text-center text-gray-400">
-          ⏳ Loading parameters from database…
+        <!-- EQUIPMENT TABS -->
+        <div class="se-eq-tabs" id="se-eq-tabs">
+          <span style="font-size:11px;color:#BDBDBD;padding:10px 0;font-weight:500">Select unit and click Load</span>
+          <div class="se-tab-search">
+            <input placeholder="Search parameter…" id="se-search" oninput="filterCards(this.value)">
+          </div>
         </div>
-        <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
 
-        <!-- Color Legend -->
-        <div class="mt-6 bg-white rounded-xl shadow p-4">
-          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Status Color Reference</div>
-          <div class="flex flex-wrap gap-3 items-center">
-            <div class="flex items-center gap-2">
-              <span class="status-pill s-normal">NORMAL</span>
-              <span class="text-xs text-gray-500">Within safe range</span>
-            </div>
-            <div class="text-gray-300">→</div>
-            <div class="flex items-center gap-2">
-              <span class="status-pill s-caution">CAUTION</span>
-              <span class="text-xs text-gray-500">70% of alarm limit</span>
-            </div>
-            <div class="text-gray-300">→</div>
-            <div class="flex items-center gap-2">
-              <span class="status-pill s-warning">WARNING</span>
-              <span class="text-xs text-gray-500">90% of alarm limit</span>
-            </div>
-            <div class="text-gray-300">→</div>
-            <div class="flex items-center gap-2">
-              <span class="status-pill s-alarm">ALARM</span>
-              <span class="text-xs text-gray-500">Limit exceeded — remark mandatory</span>
-            </div>
-            <div class="text-gray-300">→</div>
-            <div class="flex items-center gap-2">
-              <span class="status-pill s-trip">TRIP</span>
-              <span class="text-xs text-gray-500">Trip limit exceeded — immediate action</span>
-            </div>
-          </div>
-          <div class="mt-2 text-xs text-gray-400">
-            <strong>Alarm</strong> column shows the alarm threshold (H = High, L = Low) &nbsp;|&nbsp;
-            <strong>Trip</strong> column shows the trip threshold — equipment shuts down if exceeded
-          </div>
+        <!-- LOADING -->
+        <div id="se-loading" class="hidden" style="padding:14px 20px">
+          <div class="se-loading-box">Loading parameters from database…</div>
+        </div>
+
+        <!-- CARDS -->
+        <div id="cards-container" class="se-cards"></div>
+
+        <!-- LEGEND -->
+        <div class="se-legend">
+          <span class="se-leg"><span class="se-leg-dot" style="background:#A5D6A7"></span>Normal</span>
+          <span class="se-leg"><span class="se-leg-dot" style="background:#FFE082"></span>Caution 70%</span>
+          <span class="se-leg"><span class="se-leg-dot" style="background:#FFCC80"></span>Warning 90%</span>
+          <span class="se-leg"><span class="se-leg-dot" style="background:#EF9A9A"></span>Alarm</span>
+          <span class="se-leg"><span class="se-leg-dot" style="background:#C62828"></span>Trip</span>
+          <span class="se-leg-div"></span>
+          <span class="se-leg">Alarm limit in <b style="color:#C62828">red</b> · Trip in <b style="color:#1565C0">blue</b></span>
+          <span class="se-leg-div"></span>
+          <span class="se-leg">Remark mandatory for alarm &amp; trip</span>
         </div>
 
       </div>
@@ -1023,7 +1263,19 @@ function hasUnitAccess(uid) {
 }
 function autoSelectShift() {
   const h = new Date().getHours();
-  document.getElementById("se-shift").value = h>=6&&h<14?"A":h>=14&&h<22?"B":"C";
+  const s = h>=6&&h<14?"A":h>=14&&h<22?"B":"C";
+  const el = document.getElementById("se-shift");
+  if (el) el.value = s;
+  pickShift(s);
+}
+
+function pickShift(s) {
+  ["A","B","C"].forEach(x => {
+    const p = document.getElementById("spill-"+x);
+    if (p) p.className = "se-shift-pill " + (x===s ? "on" : "off");
+  });
+  const el = document.getElementById("se-shift");
+  if (el) el.value = s;
 }
 
 /******* NAVIGATION *******/
@@ -1276,83 +1528,171 @@ async function loadShiftEntry() {
 }
 
 /******* RENDER EQUIPMENT CARDS *******/
+// ── ZERODHA/GROWW style alarm/trip display ──
+// Alarm col: show value, colored by direction (red=high, blue=low)
+// Trip col: show value, colored by direction
+
 function renderCards(cards, unitId, system, date, shift) {
   const container = document.getElementById("cards-container");
   const isLocked  = shiftStatus==="Locked"||shiftStatus==="Approved";
   container.innerHTML = "";
-  // multi-unit cards go full width
-  const multiIds = cards.filter(c=>c.type==="multi").map(c=>c.id);
+
+  // Build equipment tab bar
+  const tabBar = document.getElementById("se-eq-tabs");
+  const searchDiv = tabBar.querySelector(".se-tab-search");
+  tabBar.innerHTML = "";
+  cards.forEach((card, ci) => {
+    const tab = document.createElement("span");
+    tab.className = "se-eq-tab" + (ci===0?" on":"");
+    tab.textContent = card.title;
+    tab.id = "tab_"+card.id;
+    tab.onclick = () => scrollToCard(card.id, tab);
+    tabBar.appendChild(tab);
+  });
+  if (searchDiv) tabBar.appendChild(searchDiv);
 
   cards.forEach(card => {
     const div = document.createElement("div");
     div.id = "card_" + card.id;
-    if (card.type === "multi") {
-      div.className = "eq-card col-span-1 md:col-span-2 xl:col-span-3";
-      div.innerHTML = renderMultiCard(card, unitId, system, date, shift, isLocked);
-    } else {
-      div.className = "eq-card";
-      div.innerHTML = renderSingleCard(card, unitId, system, date, shift, isLocked);
-    }
+    div.className = "z-card";
+    div.innerHTML = card.type==="multi"
+      ? renderMultiCard(card, unitId, system, date, shift, isLocked)
+      : renderSingleCard(card, unitId, system, date, shift, isLocked);
     container.appendChild(div);
   });
+
+  // Update alarm/trip counts
+  updateAlarmTripCounts();
 }
 
-function alarmDisp(p) {
-  return [p.ah!==''&&p.ah!==null?`H:${p.ah}`:'', p.al!==''&&p.al!==null?`L:${p.al}`:''].filter(Boolean).join(' ')||'—';
-}
-function tripDisp(p) {
-  return [p.th!==''&&p.th!==null?`H:${p.th}`:'', p.tl!==''&&p.tl!==null?`L:${p.tl}`:''].filter(Boolean).join(' ')||'—';
+function scrollToCard(cardId, tabEl) {
+  document.querySelectorAll(".se-eq-tab").forEach(t=>t.classList.remove("on"));
+  tabEl.classList.add("on");
+  const card = document.getElementById("card_"+cardId);
+  if (card) card.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
-/******* SINGLE CARD (one equipment) *******/
+function updateAlarmTripCounts() {
+  let alarms=0, trips=0;
+  Object.values(entryMap).forEach(e => {
+    if (e.alarmStatus==="ALARM") alarms++;
+    if (e.alarmStatus==="TRIP")  trips++;
+  });
+  const ac = document.getElementById("se-alarm-count");
+  const tc = document.getElementById("se-trip-count");
+  if (ac) ac.textContent = alarms;
+  if (tc) tc.textContent = trips;
+}
+
+// Returns {alarmCell, tripCell} HTML strings colored by H/L direction
+function limitCells(p) {
+  const ah = p.ah!==''&&p.ah!==null ? p.ah : null;
+  const th = p.th!==''&&p.th!==null ? p.th : null;
+  const al = p.al!==''&&p.al!==null ? p.al : null;
+  const tl = p.tl!==''&&p.tl!==null ? p.tl : null;
+  // Show one value — prefer high, fallback low
+  const av = ah!==null ? ah : (al!==null ? al : null);
+  const tv = th!==null ? th : (tl!==null ? tl : null);
+  const ac = ah!==null ? "lh" : (al!==null ? "ll" : "");
+  const tc = th!==null ? "lh" : (tl!==null ? "ll" : "");
+  return {
+    alarmCell: `<td class="zt al ${ac}">${av!==null?av:"—"}</td>`,
+    tripCell:  `<td class="zt tl ${tc}">${tv!==null?tv:"—"}</td>`,
+  };
+}
+
+// CSS class for value input based on alarm status
+function valCls(alarmStatus) {
+  switch(alarmStatus) {
+    case "NORMAL":  return "s-ok";
+    case "CAUTION": return "s-cau";
+    case "WARNING": return "s-war";
+    case "ALARM":   return "s-al";
+    case "TRIP":    return "s-tr";
+    default: return "";
+  }
+}
+// CSS class for status pill
+function zpCls(s) {
+  switch(s) {
+    case "NORMAL":  return "zp-n";
+    case "CAUTION": return "zp-c";
+    case "WARNING": return "zp-w";
+    case "ALARM":   return "zp-a";
+    case "TRIP":    return "zp-t";
+    default: return "";
+  }
+}
+
+/******* SINGLE CARD — ZERODHA STYLE *******/
 function renderSingleCard(card, unitId, system, date, shift, isLocked) {
   const sysCache = paramIdCache[unitId+"_"+system]||{};
-  const grp = card.dbGroup || card.title;
-  let saved = 0;
-  card.params.forEach(p => { const pid=sysCache[grp+"|"+p.name]; if(pid&&entryMap[pid])saved++; });
+  const grp  = card.dbGroup || card.title;
+  let saved=0, alarmCount=0;
+  card.params.forEach(p => {
+    const pid=sysCache[grp+"|"+p.name];
+    if(pid&&entryMap[pid]) { saved++; if(entryMap[pid].alarmStatus&&entryMap[pid].alarmStatus!=="NORMAL") alarmCount++; }
+  });
 
-  let html = `<div class="ch-${card.color} eq-card-header">
-    <div class="eq-card-title"><span>${card.icon}</span><span>${card.title}</span></div>
-    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white bg-opacity-50">${saved}/${card.params.length}</span>
-  </div>
-  <div class="overflow-x-auto"><table class="w-full text-xs"><thead>
-    <tr class="bg-slate-50 border-b">
-      <th class="px-3 py-2 text-left text-gray-500">Parameter</th>
-      <th class="px-2 py-2 text-center text-gray-400">Unit</th>
-      <th class="px-2 py-2 text-center text-orange-500">Alarm</th>
-      <th class="px-2 py-2 text-center text-red-600 font-bold">Trip</th>
-      <th class="px-2 py-2 text-center">Value</th>
-      <th class="px-2 py-2 text-center">Status</th>
-      <th class="px-2 py-2 text-left">Remark</th>
-      <th class="px-2 py-2 w-6">✓</th>
-    </tr></thead><tbody>`;
+  const badgeHtml = alarmCount>0
+    ? `<span class="z-alarm-chip z-chip-red">${alarmCount} alarm</span>`
+    : saved>0 ? `<span class="z-alarm-chip z-chip-grn">all clear</span>` : "";
+
+  let html = `
+    <div class="z-card-head">
+      <span class="z-card-title">${card.title}</span>
+      <div class="z-card-meta">
+        <span class="z-card-count">${card.params.length} parameters</span>
+        ${badgeHtml}
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="zt">
+      <thead><tr>
+        <th>Parameter</th>
+        <th class="ra">Unit</th>
+        <th class="ra" style="color:#C62828">Alarm</th>
+        <th class="ra" style="color:#1565C0">Trip</th>
+        <th class="ca">Value</th>
+        <th class="ca">Status</th>
+        <th>Remark</th>
+        <th class="ca"></th>
+      </tr></thead>
+      <tbody>`;
 
   card.params.forEach((p,pi) => {
-    const key  = card.id+"_"+pi;
-    const pid  = sysCache[grp+"|"+p.name];
-    const ex   = pid ? entryMap[pid] : null;
-    const val  = ex ? ex.value  : "";
-    const rem  = ex ? ex.remark : "";
-    const al   = evalAlarm(p, val);
-    const dis  = isLocked?"disabled":"";
-    html += `<tr class="border-b last:border-0 hover:bg-slate-50">
-      <td class="px-3 py-1.5 font-medium text-gray-700">${p.name}</td>
-      <td class="px-2 py-1.5 text-center text-gray-400">${p.unit||""}</td>
-      <td class="px-2 py-1.5 text-center text-orange-600 font-medium">${alarmDisp(p)}</td>
-      <td class="px-2 py-1.5 text-center text-red-700 font-bold">${tripDisp(p)}</td>
-      <td class="px-2 py-1.5 text-center">
-        <input type="number" id="val_${key}" value="${val}" ${dis} class="val-input" step="any"
+    const key = card.id+"_"+pi;
+    const pid = sysCache[grp+"|"+p.name];
+    const ex  = pid ? entryMap[pid] : null;
+    const val = ex ? ex.value  : "";
+    const rem = ex ? ex.remark : "";
+    const al  = evalAlarm(p, val);
+    const dis = isLocked?"disabled":"";
+    const vc  = val!=="" ? valCls(al.status) : "";
+    const sp  = val!=="" ? `<span class="zp ${zpCls(al.status)}">${al.status}</span>` : `<span class="zp-e">—</span>`;
+    const rc  = (al.req && rem==="") ? "req" : "";
+    const ph  = al.req ? "remark required" : "add remark";
+    const {alarmCell, tripCell} = limitCells(p);
+
+    html += `<tr>
+      <td class="pn">${p.name}</td>
+      <td class="un">${p.unit||""}</td>
+      ${alarmCell}
+      ${tripCell}
+      <td class="vc">
+        <input type="number" id="val_${key}" value="${val}" ${dis}
+          class="z-val ${vc}" step="any"
           oninput="onValChange('${key}','${card.id}',${pi})"
           onblur="autoSave('${key}','${card.id}',${pi},'${date}','${shift}','${unitId}','${system}')">
       </td>
-      <td class="px-2 py-1.5 text-center"><span id="stat_${key}" class="status-pill ${al.css}">${al.status}</span></td>
-      <td class="px-2 py-1.5">
-        <input type="text" id="rem_${key}" value="${rem}" ${dis} placeholder="Remark…"
-          class="w-full border rounded p-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-300"
+      <td class="sc"><span id="stat_${key}">${sp}</span></td>
+      <td class="rc">
+        <input type="text" id="rem_${key}" value="${rem}" ${dis}
+          placeholder="${ph}" class="z-rem ${rc}"
           onblur="autoSave('${key}','${card.id}',${pi},'${date}','${shift}','${unitId}','${system}')">
       </td>
-      <td class="px-2 py-1.5 text-center" id="badge_${key}">
-        ${ex?'<span class="saved-tick">✓</span>':'<span class="unsaved-tick">○</span>'}
+      <td class="bk" id="badge_${key}">
+        ${ex?'<span class="z-tick">✓</span>':'<span class="z-circ">○</span>'}
       </td>
     </tr>`;
   });
@@ -1360,78 +1700,86 @@ function renderSingleCard(card, unitId, system, date, shift, isLocked) {
   return html;
 }
 
-/******* MULTI CARD (same params, multiple equipment units side by side) *******/
+/******* MULTI CARD — ZERODHA STYLE *******/
 function renderMultiCard(card, unitId, system, date, shift, isLocked) {
   const sysCache = paramIdCache[unitId+"_"+system]||{};
-  const units    = card.units; // e.g. ["A","B"] or ["A","B","C","D","E","F","G","H","J"]
+  const units    = card.units;
 
-  // Header row — unit labels
-  let unitHeaders = units.map(u =>
-    `<th class="px-1 py-2 text-center min-w-[56px]" colspan="3">${card.title} ${u}</th>`
+  // Unit band headers (colspan 3 each)
+  const unitBands = units.map((u,ui) =>
+    `<th colspan="3" class="z-unit-band${ui===0?" style='border-left:none'":""}"
+      style="${ui===0?'border-left:none':''}">${card.title} ${u}</th>`
   ).join("");
 
-  // Sub-header — Value / Status / Remark per unit
-  let subHeaders = units.map(() =>
-    `<th class="px-1 py-1.5 text-center text-gray-400 text-xs w-16">Value</th>
-     <th class="px-1 py-1.5 text-center text-gray-400 text-xs w-20">Status</th>
-     <th class="px-1 py-1.5 text-center text-gray-400 text-xs w-20">Remark</th>`
+  // Sub-headers per unit
+  const subHdrs = units.map((u,ui) => `
+    <th class="ca" style="font-size:9px;color:#9E9E9E;font-weight:500;padding:4px 6px;border-bottom:1px solid #F0F0F0;${ui===0?'border-left:1px solid #E8E8E8':'border-left:1px solid #F0F0F0'}">Val</th>
+    <th class="ca" style="font-size:9px;color:#9E9E9E;font-weight:500;padding:4px 6px;border-bottom:1px solid #F0F0F0">Status</th>
+    <th style="font-size:9px;color:#9E9E9E;font-weight:500;padding:4px 6px;border-bottom:1px solid #F0F0F0">Remark</th>`
   ).join("");
 
-  // Param rows
   let rows = "";
   card.params.forEach((p, pi) => {
+    const {alarmCell, tripCell} = limitCells(p);
     let cells = "";
     units.forEach((u, ui) => {
-      const grp  = card.dbGroups ? card.dbGroups[Math.min(ui, card.dbGroups.length-1)] : (card.dbGroup||card.title+" "+u);
-      const key  = card.id+"_"+u+"_"+pi;
-      const pid  = sysCache[grp+"|"+p.name];
-      const ex   = pid ? entryMap[pid] : null;
-      const val  = ex ? ex.value  : "";
-      const rem  = ex ? ex.remark : "";
-      const al   = evalAlarm(p, val);
-      const dis  = isLocked?"disabled":"";
-      // Store mapping for autoSave to know which dbGroup to use
+      const grp = card.dbGroups ? card.dbGroups[Math.min(ui,card.dbGroups.length-1)] : (card.dbGroup||card.title+" "+u);
+      const key = card.id+"_"+u+"_"+pi;
+      const pid = sysCache[grp+"|"+p.name];
+      const ex  = pid ? entryMap[pid] : null;
+      const val = ex ? ex.value  : "";
+      const rem = ex ? ex.remark : "";
+      const al  = evalAlarm(p, val);
+      const dis = isLocked?"disabled":"";
+      const mc  = val!=="" ? valCls(al.status) : "";
+      const sp  = val!=="" ? `<span class="zp ${zpCls(al.status)}">${al.status}</span>` : `<span class="zp-e">—</span>`;
+      const rc  = (al.req && rem==="") ? "req" : "";
       cells += `
-        <td class="px-1 py-1 text-center">
-          <input type="number" id="val_${key}" value="${val}" ${dis} class="val-input w-16" step="any"
+        <td style="${ui===0?'border-left:1px solid #E8E8E8':'border-left:1px solid #F0F0F0'};padding:6px 7px;text-align:center">
+          <input type="number" id="val_${key}" value="${val}" ${dis}
+            class="z-mini ${mc}" step="any"
             oninput="onValChangeMulti('${key}','${card.id}','${u}',${pi})"
             onblur="autoSaveMulti('${key}','${card.id}','${u}',${pi},'${date}','${shift}','${unitId}','${system}','${grp}')">
         </td>
-        <td class="px-1 py-1 text-center">
-          <span id="stat_${key}" class="status-pill ${al.css}" style="font-size:10px">${al.status}</span>
+        <td style="border-left:1px solid #F0F0F0;padding:6px 7px;text-align:center">
+          <span id="stat_${key}">${sp}</span>
         </td>
-        <td class="px-1 py-1">
-          <input type="text" id="rem_${key}" value="${rem}" ${dis} placeholder="Remark"
-            class="w-full border rounded p-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-300 min-w-[80px]"
+        <td style="border-left:1px solid #F0F0F0;padding:6px 7px;min-width:80px">
+          <input type="text" id="rem_${key}" value="${rem}" ${dis}
+            placeholder="${al.req?'required':'—'}" class="z-mini-rem ${rc}"
             onblur="autoSaveMulti('${key}','${card.id}','${u}',${pi},'${date}','${shift}','${unitId}','${system}','${grp}')">
         </td>`;
     });
 
-    rows += `<tr class="border-b last:border-0 hover:bg-slate-50">
-      <td class="px-3 py-1.5 font-medium text-gray-700 whitespace-nowrap">${p.name}</td>
-      <td class="px-2 py-1.5 text-center text-gray-400">${p.unit||""}</td>
-      <td class="px-2 py-1.5 text-center text-orange-600 font-medium whitespace-nowrap">${alarmDisp(p)}</td>
-      <td class="px-2 py-1.5 text-center text-red-700 font-bold whitespace-nowrap">${tripDisp(p)}</td>
+    rows += `<tr>
+      <td class="pn" style="white-space:nowrap">${p.name}</td>
+      <td class="un">${p.unit||""}</td>
+      ${alarmCell}
+      ${tripCell}
       ${cells}
     </tr>`;
   });
 
+  const totalParams = units.length * card.params.length;
+
   return `
-    <div class="ch-${card.color} eq-card-header">
-      <div class="eq-card-title"><span>${card.icon}</span><span>${card.title} (${units.map(u=>card.title+" "+u).join(", ")})</span></div>
-      <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white bg-opacity-50">${units.length} units · ${card.params.length} params each</span>
+    <div class="z-card-head">
+      <span class="z-card-title">${card.title}</span>
+      <div class="z-card-meta">
+        <span class="z-card-count">${card.params.length} parameters · ${units.length} units</span>
+      </div>
     </div>
-    <div class="overflow-x-auto">
-    <table class="w-full text-xs">
+    <div style="overflow-x:auto">
+    <table class="zt" style="table-layout:auto">
       <thead>
-        <tr style="background:linear-gradient(90deg,#1565C0,#1976D2);" class="text-white border-b">
-          <th class="px-3 py-2 text-left" rowspan="2">Parameter</th>
-          <th class="px-2 py-2 text-center text-gray-300" rowspan="2">Unit</th>
-          <th class="px-2 py-2 text-center text-orange-300" rowspan="2">Alarm</th>
-          <th class="px-2 py-2 text-center text-red-300 font-bold" rowspan="2">Trip</th>
-          ${unitHeaders}
+        <tr style="background:#FAFAFA">
+          <th rowspan="2" style="width:170px">Parameter</th>
+          <th rowspan="2" class="ra" style="width:44px">Unit</th>
+          <th rowspan="2" class="ra" style="width:52px;color:#C62828">Alarm</th>
+          <th rowspan="2" class="ra" style="width:52px;color:#1565C0">Trip</th>
+          ${unitBands}
         </tr>
-        <tr style="background:#1976D2;" class="text-white">${subHeaders}</tr>
+        <tr style="background:#FAFAFA">${subHdrs}</tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
@@ -1479,15 +1827,25 @@ function onValChangeMulti(key, cardId, unit, pi) {
   _applyAlarmUI(key, card.params[pi]);
 }
 function _applyAlarmUI(key, p) {
-  const val = document.getElementById("val_"+key).value;
-  const res = evalAlarm(p, val);
-  const sp  = document.getElementById("stat_"+key);
-  if (!sp) return;
-  sp.className = "status-pill " + res.css;
-  sp.textContent = res.status;
-  const rem = document.getElementById("rem_"+key);
-  if (res.req) { rem.classList.add("remark-req"); rem.placeholder="⚠ Remark required"; }
-  else         { rem.classList.remove("remark-req"); rem.placeholder="Remark…"; }
+  const val  = document.getElementById("val_"+key).value;
+  const res  = evalAlarm(p, val);
+  // Status span
+  const sp = document.getElementById("stat_"+key);
+  if (sp) {
+    sp.innerHTML = val!=="" ? `<span class="zp ${zpCls(res.status)}">${res.status}</span>` : `<span class="zp-e">—</span>`;
+  }
+  // Value input class
+  const vi = document.getElementById("val_"+key);
+  if (vi) {
+    vi.className = (vi.classList.contains("z-mini") ? "z-mini" : "z-val") + (val!==""?" "+valCls(res.status):"");
+  }
+  // Remark field
+  const ri = document.getElementById("rem_"+key);
+  if (ri) {
+    if (res.req) { ri.classList.add("req"); ri.placeholder="remark required"; }
+    else         { ri.classList.remove("req"); ri.placeholder=ri.classList.contains("z-mini-rem")?"—":"add remark"; }
+  }
+  updateAlarmTripCounts();
 }
 
 /******* AUTO SAVE *******/
@@ -1544,19 +1902,19 @@ async function autoSaveMulti(key, cardId, unit, pi, date, shift, unitId, system,
   const res = evalAlarm(p, val);
   if (res.req && rem==="") {
     document.getElementById("rem_"+key).classList.add("remark-req");
-    showMsg("Remark required for "+res.status,"err"); return;
+    showSeMsg("Remark required for "+res.status,"err"); return;
   }
   const paramId = await resolveParamId(dbGroup, p.name, unitId, system);
-  if (!paramId) { showMsg("Param not found: "+dbGroup+" | "+p.name,"err"); return; }
+  if (!paramId) { showSeMsg("Param not found: "+dbGroup+" | "+p.name,"err"); return; }
   const entry = {date,shift,unitId,system,parameterId:paramId,value:Number(val),remark:rem,enteredBy:CURRENT_USER.username};
   try {
     const r = await api("saveShiftEntry",{entry});
     if (r&&r.success) {
       entryMap[paramId]={logId:r.logId,value:val,remark:rem,alarmStatus:r.alarmStatus};
-      document.getElementById("badge_"+key)&&(document.getElementById("badge_"+key).innerHTML='<span class="saved-tick">✓</span>');
-      showMsg("Saved: "+dbGroup+" "+p.name,"ok");
-    } else showMsg("Save failed","err");
-  } catch(e) { showMsg("Error: "+e.message,"err"); }
+      const bk=document.getElementById("badge_"+key); if(bk) bk.innerHTML='<span class="z-tick">✓</span>';
+      showSeMsg("Saved: "+dbGroup+" "+p.name,"ok");
+    } else showSeMsg("Save failed","err");
+  } catch(e) { showSeMsg("Error: "+e.message,"err"); }
 }
 
 /******* RESOLVE PARAM ID *******/
@@ -1582,9 +1940,14 @@ async function resolveParamId(groupName, paramName, unitId, system) {
 
 /******* FILTER CARDS *******/
 function filterCards(q) {
-  q = q.toLowerCase();
+  q = q.toLowerCase().trim();
   document.querySelectorAll("#cards-container > div").forEach(card => {
-    card.style.display = card.textContent.toLowerCase().includes(q) ? "" : "none";
+    card.style.display = !q || card.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+  // Sync tabs visibility
+  document.querySelectorAll(".se-eq-tab").forEach(tab => {
+    const cardId = "card_" + (tab.textContent.toLowerCase().replace(/\s+/g,"_"));
+    tab.style.opacity = !q ? "1" : "0.5";
   });
 }
 
@@ -1657,7 +2020,7 @@ async function doSubmitShift() {
       // Disable all inputs
       document.querySelectorAll(".val-input, #cards-container input[type=text]").forEach(i=>i.disabled=true);
     }
-  } catch(e) { showMsg("Error: "+e.message,"err"); }
+  } catch(e) { showSeMsg("Error: "+e.message,"err"); }
 }
 function closeModal() { document.getElementById("submit-modal").classList.add("hidden"); }
 
