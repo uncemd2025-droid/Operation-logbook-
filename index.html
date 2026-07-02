@@ -48,6 +48,31 @@
 #sidebar-overlay { display:none; }
 
 /* ══ ZERODHA / GROWW SHIFT ENTRY THEME ══ */
+
+/* Font scale — controlled by JS via data-fsize attribute on #shift-entry-wrap */
+#shift-entry-wrap[data-fsize="sm"]  { --se-f-param:11px; --se-f-val:12px; --se-f-hdr:9px;  --se-f-pill:9px;  --se-f-tab:11px; --se-f-meta:11px; --se-f-rem:11px; }
+#shift-entry-wrap[data-fsize="md"]  { --se-f-param:13px; --se-f-val:14px; --se-f-hdr:11px; --se-f-pill:11px; --se-f-tab:13px; --se-f-meta:13px; --se-f-rem:13px; }
+#shift-entry-wrap[data-fsize="lg"]  { --se-f-param:15px; --se-f-val:16px; --se-f-hdr:12px; --se-f-pill:12px; --se-f-tab:14px; --se-f-meta:14px; --se-f-rem:14px; }
+#shift-entry-wrap[data-fsize="xl"]  { --se-f-param:17px; --se-f-val:18px; --se-f-hdr:13px; --se-f-pill:13px; --se-f-tab:16px; --se-f-meta:15px; --se-f-rem:15px; }
+#shift-entry-wrap { --se-f-param:13px; --se-f-val:14px; --se-f-hdr:11px; --se-f-pill:11px; --se-f-tab:13px; --se-f-meta:13px; --se-f-rem:13px; }
+
+/* Apply variables */
+.zt td.pn        { font-size: var(--se-f-param) !important; }
+.zt td.un        { font-size: calc(var(--se-f-param) - 1px) !important; }
+.zt td.al, .zt td.tl { font-size: var(--se-f-param) !important; }
+.zt tbody td     { font-size: var(--se-f-param) !important; }
+.zt thead th     { font-size: var(--se-f-hdr) !important; }
+.z-val           { font-size: var(--se-f-val) !important; }
+.z-rem           { font-size: var(--se-f-rem) !important; }
+.zp              { font-size: var(--se-f-pill) !important; }
+.z-card-title    { font-size: var(--se-f-tab) !important; }
+.z-card-count    { font-size: calc(var(--se-f-param) - 1px) !important; }
+.se-eq-tab       { font-size: var(--se-f-tab) !important; }
+.se-meta-val     { font-size: var(--se-f-meta) !important; }
+.z-mini          { font-size: var(--se-f-rem) !important; }
+.z-mini-rem      { font-size: calc(var(--se-f-rem) - 1px) !important; }
+.z-unit-band     { font-size: var(--se-f-hdr) !important; }
+.z-alarm-chip    { font-size: var(--se-f-hdr) !important; }
 #shift-entry-wrap {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #F2F2F2;
@@ -628,6 +653,22 @@ const TG_CARDS = [
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <span id="se-msg" class="text-xs px-3 py-1 rounded-lg hidden"></span>
+            <!-- Font size control -->
+            <div style="display:flex;align-items:center;gap:2px;border:1px solid #E0E0E0;border-radius:4px;overflow:hidden;background:#F8F8F8">
+              <button onclick="setFontSize('sm')" id="fsz-sm"
+                style="font-size:10px;font-weight:700;padding:5px 8px;border:none;cursor:pointer;background:transparent;color:#9E9E9E;letter-spacing:.2px"
+                title="Small text">A</button>
+              <button onclick="setFontSize('md')" id="fsz-md"
+                style="font-size:12px;font-weight:700;padding:5px 8px;border:none;cursor:pointer;background:#387ED1;color:#fff;letter-spacing:.2px"
+                title="Medium text">A</button>
+              <button onclick="setFontSize('lg')" id="fsz-lg"
+                style="font-size:14px;font-weight:700;padding:5px 8px;border:none;cursor:pointer;background:transparent;color:#9E9E9E;letter-spacing:.2px"
+                title="Large text">A</button>
+              <button onclick="setFontSize('xl')" id="fsz-xl"
+                style="font-size:16px;font-weight:700;padding:5px 8px;border:none;cursor:pointer;background:transparent;color:#9E9E9E;letter-spacing:.2px"
+                title="Extra large text">A</button>
+            </div>
+            <div style="width:1px;height:20px;background:#E8E8E8"></div>
             <button onclick="saveDraft()"
               style="font-size:11px;font-weight:600;padding:6px 14px;border-radius:4px;border:1px solid #D0D0D0;background:#fff;color:#424242;cursor:pointer;letter-spacing:.2px"
               onmouseover="this.style.background='#F5F5F5'" onmouseout="this.style.background='#fff'">
@@ -1268,6 +1309,30 @@ function autoSelectShift() {
   const el = document.getElementById("se-shift");
   if (el) el.value = s;
   pickShift(s);
+  // Restore saved font size
+  try {
+    const saved = localStorage.getItem("se_fontsize") || "md";
+    setFontSize(saved);
+  } catch(e) { setFontSize("md"); }
+}
+
+function setFontSize(size) {
+  const wrap = document.getElementById("shift-entry-wrap");
+  if (wrap) wrap.setAttribute("data-fsize", size);
+  // Update button styles
+  ["sm","md","lg","xl"].forEach(s => {
+    const btn = document.getElementById("fsz-"+s);
+    if (!btn) return;
+    if (s === size) {
+      btn.style.background = "#387ED1";
+      btn.style.color      = "#fff";
+    } else {
+      btn.style.background = "transparent";
+      btn.style.color      = "#9E9E9E";
+    }
+  });
+  // Persist to localStorage
+  try { localStorage.setItem("se_fontsize", size); } catch(e) {}
 }
 
 function pickShift(s) {
