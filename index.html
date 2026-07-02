@@ -645,8 +645,7 @@ const TG_CARDS = [
         <div class="se-meta-strip">
           <div class="se-meta-item">
             <span class="se-meta-label">Date</span>
-            <input type="date" id="se-date"
-              style="font-size:11px;font-weight:600;color:#1a1a1a;border:none;background:transparent;outline:none;cursor:pointer;padding:0">
+            <input type="date" id="se-date" style="font-size:11px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:2px 6px;outline:none;cursor:pointer">
           </div>
           <div class="se-meta-item">
             <span class="se-meta-label">Shift</span>
@@ -658,11 +657,11 @@ const TG_CARDS = [
           </div>
           <div class="se-meta-item">
             <span class="se-meta-label">Unit</span>
-            <select id="se-unit" style="font-size:11px;font-weight:600;color:#1a1a1a;border:none;background:transparent;outline:none;cursor:pointer"></select>
+            <select id="se-unit" onchange="document.getElementById('se-unit-lbl').textContent=this.value" style="font-size:11px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:2px 6px;outline:none;cursor:pointer"></select>
           </div>
           <div class="se-meta-item">
             <span class="se-meta-label">System</span>
-            <select id="se-system" style="font-size:11px;font-weight:600;color:#1a1a1a;border:none;background:transparent;outline:none;cursor:pointer">
+            <select id="se-system" onchange="document.getElementById('se-sys-lbl').textContent=this.value" style="font-size:11px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:2px 6px;outline:none;cursor:pointer">
               <option value="SG">SG</option>
               <option value="TG">TG</option>
             </select>
@@ -686,6 +685,7 @@ const TG_CARDS = [
               <span class="se-meta-val" id="se-count">0 / 0</span>
             </div>
           </div>
+          <input type="hidden" id="se-shift" value="A">
           <div style="padding-left:12px">
             <button onclick="loadShiftEntry()"
               style="font-size:10px;font-weight:600;padding:4px 12px;border-radius:3px;border:1px solid #387ED1;background:transparent;color:#387ED1;cursor:pointer;letter-spacing:.3px;text-transform:uppercase"
@@ -1238,6 +1238,7 @@ function bootApp() {
     }
   });
   if ([...sel.options].some(o => o.value === "U6")) sel.value = "U6";
+  const ulbl = document.getElementById("se-unit-lbl"); if(ulbl&&sel.value) ulbl.textContent=sel.value;
   showPage("dashboard");
   loadDashboard();
 }
@@ -1488,11 +1489,6 @@ async function loadShiftEntry() {
   document.getElementById("se-loading").classList.remove("hidden");
   document.getElementById("cards-container").innerHTML = "";
 
-  // Update header shift badge
-  const h = new Date().getHours();
-  document.getElementById("hdr-shift-badge").textContent =
-    `${unitId} | ${system} | ${shift} Shift | ${date}`;
-
   try {
     // Load parameters AND existing entries in parallel
     const [dbParams, entries] = await Promise.all([
@@ -1521,7 +1517,7 @@ async function loadShiftEntry() {
     const cards = system === "SG" ? SG_CARDS : TG_CARDS;
     renderCards(cards, unitId, system, date, shift);
     updateShiftBadge();
-    updateEntryCount(cards);
+    updateEntryCount();
 
   } catch(e) { alert("Error: " + e.message); }
   finally { document.getElementById("se-loading").classList.add("hidden"); }
@@ -1884,7 +1880,7 @@ async function autoSave(key, cardId, pi, date, shift, unitId, system) {
       document.getElementById("badge_"+key).innerHTML = '<span class="saved-tick">✓</span>';
       showMsg("Saved: "+p.name, "ok");
       const allCards = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
-      updateEntryCount(allCards);
+      updateEntryCount();
     } else { showMsg("Save failed", "err"); }
   } catch(e) { showMsg("Error: "+e.message, "err"); }
 }
@@ -2032,7 +2028,7 @@ function updateShiftBadge() {
   b.className = "text-xs px-2 py-0.5 rounded-full font-semibold " + (map[shiftStatus]||map.Draft);
   b.textContent = shiftStatus;
 }
-function updateEntryCount(cards) {
+function updateEntryCount() {
   const total = cards.reduce((s,c)=>s+c.params.length,0);
   const saved = Object.keys(entryMap).length;
   document.getElementById("se-count").textContent = saved+" / "+total+" entries saved";
