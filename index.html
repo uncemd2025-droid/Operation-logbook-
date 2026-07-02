@@ -76,12 +76,12 @@
   white-space: nowrap;
 }
 .se-meta-item:last-child { border-right: none; margin-left: auto; }
-.se-meta-label { font-size: 10px; color: #9E9E9E; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
-.se-meta-val   { font-size: 11px; color: #1a1a1a; font-weight: 600; }
+.se-meta-label { font-size: 11px; color: #9E9E9E; font-weight: 500; text-transform: uppercase; letter-spacing: .3px; }
+.se-meta-val   { font-size: 13px; color: #1a1a1a; font-weight: 600; }
 .se-meta-val.warn { color: #C62828; }
 .se-meta-val.ok   { color: #00A651; }
 .se-shift-pill {
-  font-size: 10px; font-weight: 700; padding: 2px 9px;
+  font-size: 12px; font-weight: 700; padding: 3px 10px;
   border-radius: 3px; cursor: pointer; transition: all .12s;
 }
 .se-shift-pill.off { background: #F5F5F5; color: #9E9E9E; }
@@ -100,7 +100,7 @@
   gap: 0;
 }
 .se-eq-tab {
-  font-size: 11px; font-weight: 600; color: #9E9E9E;
+  font-size: 13px; font-weight: 600; color: #9E9E9E;
   padding: 10px 14px; cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all .15s; white-space: nowrap; letter-spacing: .2px;
@@ -127,14 +127,14 @@
 }
 .z-card-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 9px 16px;
+  padding: 11px 16px;
   border-bottom: 1px solid #F5F5F5;
 }
-.z-card-title { font-size: 11px; font-weight: 700; color: #1a1a1a; letter-spacing: .4px; text-transform: uppercase; }
+.z-card-title { font-size: 13px; font-weight: 700; color: #1a1a1a; letter-spacing: .3px; text-transform: uppercase; }
 .z-card-meta  { display: flex; align-items: center; gap: 8px; }
-.z-card-count { font-size: 10px; color: #9E9E9E; }
+.z-card-count { font-size: 12px; color: #9E9E9E; }
 .z-alarm-chip {
-  font-size: 9px; font-weight: 700; padding: 2px 7px;
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
   border-radius: 3px; letter-spacing: .3px;
 }
 .z-chip-red { background: #FFEBEE; color: #C62828; }
@@ -143,23 +143,23 @@
 /* Z-TABLE shared */
 table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .zt thead th {
-  font-size: 9px; font-weight: 600; color: #9E9E9E;
-  text-transform: uppercase; letter-spacing: .5px;
-  padding: 6px 12px; border-bottom: 1px solid #F0F0F0;
+  font-size: 11px; font-weight: 600; color: #9E9E9E;
+  text-transform: uppercase; letter-spacing: .3px;
+  padding: 7px 12px; border-bottom: 1px solid #F0F0F0;
   background: #FAFAFA; white-space: nowrap;
 }
 .zt thead th.ra { text-align: right; }
 .zt thead th.ca { text-align: center; }
 .zt tbody td {
-  padding: 7px 12px; border-bottom: 1px solid #F5F5F5;
-  vertical-align: middle; color: #1a1a1a;
+  padding: 9px 12px; border-bottom: 1px solid #F5F5F5;
+  vertical-align: middle; color: #1a1a1a; font-size: 13px;
 }
 .zt tbody tr:last-child td { border-bottom: none; }
 .zt tbody tr:hover td { background: #FAFAFA; }
-.zt td.pn { font-size: 11px; color: #424242; width: 180px; }
-.zt td.un { font-size: 10px; color: #BDBDBD; text-align: right; width: 46px; }
-.zt td.al { font-size: 11px; text-align: right; width: 56px; font-variant-numeric: tabular-nums; color: #C62828; }
-.zt td.tl { font-size: 11px; text-align: right; width: 56px; font-variant-numeric: tabular-nums; color: #1565C0; font-weight: 600; }
+.zt td.pn { font-size: 13px; color: #424242; width: 200px; }
+.zt td.un { font-size: 12px; color: #BDBDBD; text-align: right; width: 52px; }
+.zt td.al { font-size: 13px; text-align: right; width: 60px; font-variant-numeric: tabular-nums; color: #C62828; }
+.zt td.tl { font-size: 13px; text-align: right; width: 60px; font-variant-numeric: tabular-nums; color: #1565C0; font-weight: 600; }
 .zt td.lh { color: #C62828; } /* high limit */
 .zt td.ll { color: #1565C0; } /* low limit */
 .zt td.vc { text-align: center; width: 88px; }
@@ -169,7 +169,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 
 /* VALUE INPUT */
 .z-val {
-  width: 74px; padding: 4px 7px; font-size: 12px; font-weight: 500;
+  width: 80px; padding: 5px 8px; font-size: 14px; font-weight: 500;
   border: 1px solid #E0E0E0; border-radius: 4px;
   background: #F8F8F8; color: #1a1a1a;
   text-align: right; outline: none;
@@ -185,7 +185,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 
 /* REMARK INPUT */
 .z-rem {
-  width: 100%; font-size: 11px; padding: 4px 7px;
+  width: 100%; font-size: 13px; padding: 5px 8px;
   border: 1px solid transparent; border-radius: 4px;
   background: transparent; color: #424242; outline: none;
   transition: border .12s, background .12s;
@@ -196,7 +196,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 
 /* STATUS PILL */
 .zp {
-  font-size: 9px; font-weight: 700; padding: 2px 6px;
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
   border-radius: 3px; letter-spacing: .3px;
   display: inline-block; text-transform: uppercase;
 }
@@ -209,7 +209,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 
 /* MULTI-UNIT TABLE */
 .z-unit-band {
-  font-size: 9px; font-weight: 700; color: #387ED1;
+  font-size: 11px; font-weight: 700; color: #387ED1;
   letter-spacing: .5px; text-transform: uppercase;
   text-align: center; padding: 5px 0;
   background: #EEF4FB; border-left: 1px solid #E8E8E8;
@@ -219,7 +219,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .z-mc-r { border-left: 1px solid #F0F0F0; padding: 6px 7px; }
 .z-mc-first { border-left: 1px solid #E8E8E8 !important; }
 .z-mini {
-  width: 58px; padding: 3px 5px; font-size: 11px; font-weight: 500;
+  width: 66px; padding: 5px 6px; font-size: 13px; font-weight: 500;
   border: 1px solid #E0E0E0; border-radius: 3px;
   background: #F8F8F8; color: #1a1a1a;
   text-align: right; outline: none; font-variant-numeric: tabular-nums;
@@ -228,7 +228,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .z-mini.s-al  { border-color: #EF9A9A; background: #FFF5F5; color: #C62828; }
 .z-mini.s-tr  { border-color: #C62828; background: #FFEBEE; color: #B71C1C; font-weight: 700; }
 .z-mini-rem {
-  width: 100%; min-width: 70px; font-size: 10px; padding: 3px 5px;
+  width: 100%; min-width: 80px; font-size: 12px; padding: 4px 6px;
   border: 1px solid transparent; border-radius: 3px;
   background: transparent; color: #424242; outline: none;
 }
@@ -242,7 +242,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
   border-top: 1px solid #F0F0F0; margin-top: 4px;
   flex-wrap: wrap;
 }
-.se-leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #9E9E9E; }
+.se-leg { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #9E9E9E; }
 .se-leg-dot { width: 7px; height: 7px; border-radius: 50%; }
 .se-leg-div { width: 1px; height: 10px; background: #E8E8E8; }
 
@@ -619,7 +619,7 @@ const TG_CARDS = [
         <!-- TOP ACTION BAR -->
         <div style="background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:46px;border-bottom:1px solid #E8E8E8;">
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:12px;font-weight:700;color:#1a1a1a;letter-spacing:-.2px">Shift Log Entry</span>
+            <span style="font-size:14px;font-weight:700;color:#1a1a1a;letter-spacing:-.2px">Shift Log Entry</span>
             <span style="font-size:10px;color:#9E9E9E;">
               <span id="se-unit-lbl">—</span> &nbsp;·&nbsp;
               <span id="se-sys-lbl">—</span>
@@ -2029,9 +2029,17 @@ function updateShiftBadge() {
   b.textContent = shiftStatus;
 }
 function updateEntryCount() {
-  const total = cards.reduce((s,c)=>s+c.params.length,0);
+  const allCards = currentSystem==="SG" ? SG_CARDS : TG_CARDS;
+  const total = allCards.reduce((s, card) => {
+    return s + (card.type==="multi"
+      ? card.units.length * card.params.length
+      : card.params.length);
+  }, 0);
   const saved = Object.keys(entryMap).length;
-  document.getElementById("se-count").textContent = saved+" / "+total+" entries saved";
+  const el = document.getElementById("se-count");
+  if (el) el.textContent = saved + " / " + total;
+  const pf = document.getElementById("se-prog-fill");
+  if (pf) pf.style.width = (total > 0 ? Math.round(saved/total*100) : 0) + "%";
 }
 function showMsg(msg, type) {
   const e   = document.getElementById("se-msg");
