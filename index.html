@@ -86,7 +86,7 @@
   align-items: center;
   gap: 0;
   padding: 0 20px;
-  height: 38px;
+  height: 46px;
   border-bottom: 1px solid #F0F0F0;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -101,12 +101,12 @@
   white-space: nowrap;
 }
 .se-meta-item:last-child { border-right: none; margin-left: auto; }
-.se-meta-label { font-size: 11px; color: #9E9E9E; font-weight: 500; text-transform: uppercase; letter-spacing: .3px; }
-.se-meta-val   { font-size: 13px; color: #1a1a1a; font-weight: 600; }
+.se-meta-label { font-size: 12px; color: #9E9E9E; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+.se-meta-val   { font-size: 14px; color: #1a1a1a; font-weight: 700; }
 .se-meta-val.warn { color: #C62828; }
 .se-meta-val.ok   { color: #00A651; }
 .se-shift-pill {
-  font-size: 12px; font-weight: 700; padding: 3px 10px;
+  font-size: 13px; font-weight: 700; padding: 4px 11px;
   border-radius: 3px; cursor: pointer; transition: all .12s;
 }
 .se-shift-pill.off { background: #F5F5F5; color: #9E9E9E; }
@@ -162,7 +162,7 @@
   font-size: 11px; font-weight: 700; padding: 3px 8px;
   border-radius: 3px; letter-spacing: .3px;
 }
-.z-chip-red { background: #FFEBEE; color: #C62828; }
+.z-chip-red { background: #FFF3E0; color: #E65100; }
 .z-chip-grn { background: #E8F5E9; color: #1B5E20; }
 
 /* Z-TABLE shared */
@@ -183,10 +183,10 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .zt tbody tr:hover td { background: #FAFAFA; }
 .zt td.pn { font-size: 13px; color: #424242; width: 200px; }
 .zt td.un { font-size: 12px; color: #BDBDBD; text-align: right; width: 52px; }
-.zt td.al { font-size: 13px; text-align: right; width: 60px; font-variant-numeric: tabular-nums; color: #C62828; }
-.zt td.tl { font-size: 13px; text-align: right; width: 60px; font-variant-numeric: tabular-nums; color: #1565C0; font-weight: 600; }
-.zt td.lh { color: #C62828; } /* high limit */
-.zt td.ll { color: #1565C0; } /* low limit */
+.zt td.al { font-size: 13px; text-align: right; width: 60px; font-variant-numeric: tabular-nums; color: #1565C0; font-weight:600; }
+.zt td.tl { font-size: 13px; text-align: right; width: 60px; font-variant-numeric: tabular-nums; color: #C62828; font-weight: 700; }
+.zt td.lh { color: #1565C0; font-weight:600; } /* alarm high = blue */
+.zt td.ll { color: #1565C0; font-weight:600; } /* alarm low = blue */
 .zt td.vc { text-align: center; width: 88px; }
 .zt td.sc { text-align: center; width: 82px; }
 .zt td.rc { min-width: 110px; }
@@ -205,7 +205,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .z-val.s-ok  { border-color: #A5D6A7; background: #F1F8F1; }
 .z-val.s-cau { border-color: #FFE082; background: #FFFDE7; }
 .z-val.s-war { border-color: #FFCC80; background: #FFF8F0; }
-.z-val.s-al  { border-color: #EF9A9A; background: #FFF5F5; color: #C62828; }
+.z-val.s-al  { border-color: #FFCC80; background: #FFF8F0; color: #E65100; }
 .z-val.s-tr  { border-color: #C62828; background: #FFEBEE; color: #B71C1C; font-weight: 700; }
 
 /* REMARK INPUT */
@@ -228,7 +228,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .zp-n { background: #E8F5E9; color: #1B5E20; }
 .zp-c { background: #FFF8E1; color: #F57F17; }
 .zp-w { background: #FFF3E0; color: #E65100; }
-.zp-a { background: #FFEBEE; color: #C62828; }
+.zp-a { background: #FFF3E0; color: #E65100; }
 .zp-t { background: #C62828; color: #fff; }
 .zp-e { color: #BDBDBD; font-size: 10px; font-weight: 400; }
 
@@ -250,7 +250,7 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
   text-align: right; outline: none; font-variant-numeric: tabular-nums;
 }
 .z-mini:focus { border-color: #387ED1; background: #fff; }
-.z-mini.s-al  { border-color: #EF9A9A; background: #FFF5F5; color: #C62828; }
+.z-mini.s-al  { border-color: #FFCC80; background: #FFF8F0; color: #E65100; }
 .z-mini.s-tr  { border-color: #C62828; background: #FFEBEE; color: #B71C1C; font-weight: 700; }
 .z-mini-rem {
   width: 100%; min-width: 80px; font-size: 12px; padding: 4px 6px;
@@ -270,6 +270,22 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .se-leg { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #9E9E9E; }
 .se-leg-dot { width: 7px; height: 7px; border-radius: 50%; }
 .se-leg-div { width: 1px; height: 10px; background: #E8E8E8; }
+
+/* STICKY FROZEN COLUMNS for multi-unit cards */
+.zt-sticky { overflow-x: auto; position: relative; }
+.zt-sticky table { border-collapse: separate; border-spacing: 0; }
+.zt-sticky th.sticky-col,
+.zt-sticky td.sticky-col {
+  position: sticky;
+  background: #fff;
+  z-index: 2;
+}
+.zt-sticky thead th.sticky-col { background: #FAFAFA; z-index: 3; }
+.zt-sticky .sticky-col-1 { left: 0;    min-width: 180px; }
+.zt-sticky .sticky-col-2 { left: 180px; min-width: 52px; }
+.zt-sticky .sticky-col-3 { left: 232px; min-width: 60px; }
+.zt-sticky .sticky-col-4 { left: 292px; min-width: 60px; border-right: 2px solid #E8E8E8 !important; }
+.zt-sticky td.sticky-col { border-right: 1px solid #F0F0F0; }
 
 /* LOADING */
 .se-loading-box {
@@ -339,50 +355,50 @@ const SG_CARDS = [
     units:["A","B"],
     dbGroups:["ID FAN A","ID FAN B"],
     params:[
-      {name:"Fan Brg Temp",            unit:"°C",   ah:77,  th:82,  al:"", tl:""},
-      {name:"Motor Brg Temp",          unit:"°C",   ah:95,  th:100, al:"", tl:""},
-      {name:"Motor & Exciter Wdg Temp",unit:"°C",   ah:120, th:125, al:"", tl:""},
-      {name:"Fan Vibration",           unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
-      {name:"Motor Vibration",         unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+      {name:"Fan Brg Temp HI",            unit:"°C",ah:77,  th:82,  al:"", tl:""},
+      {name:"Motor Brg Temp HI",          unit:"°C",ah:95,  th:100, al:"", tl:""},
+      {name:"Motor & Exciter Winding Temp",unit:"°C",ah:120, th:125, al:"", tl:""},
+      {name:"Fan Vibration HI",           unit:"mm/s",ah:9.9,th:15, al:"", tl:""},
+      {name:"Motor Vibration HI",         unit:"mm/s",ah:4.5,th:7.1,al:"", tl:""},
     ]},
   { id:"fd_fan", type:"multi", title:"FD Fan", icon:"🌬️", color:"cyan",
     units:["A","B"],
     dbGroups:["FD FAN A","FD FAN B"],
     params:[
-      {name:"Fan Brg Temp",    unit:"°C",   ah:90,  th:110, al:"", tl:""},
-      {name:"Motor Brg Temp",  unit:"°C",   ah:95,  th:100, al:"", tl:""},
-      {name:"Motor Wdg Temp",  unit:"°C",   ah:125, th:130, al:"", tl:""},
-      {name:"Fan Vibration",   unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
-      {name:"Motor Vibration", unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+      {name:"Fan Brg Temp HI", unit:"°C",   ah:90,  th:110, al:"", tl:""},
+      {name:"Motor Brg Temp HI", unit:"°C", ah:95,  th:100, al:"", tl:""},
+      {name:"Motor Winding Temp", unit:"°C", ah:125, th:130, al:"", tl:""},
+      {name:"Fan Vibration HI", unit:"mm/s",ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration HI", unit:"mm/s",ah:4.5,th:7.1,al:"", tl:""},
     ]},
   { id:"pa_fan", type:"multi", title:"PA Fan", icon:"🌀", color:"violet",
     units:["A","B"],
     dbGroups:["PA FAN A","PA FAN B"],
     params:[
-      {name:"Fan Brg Temp",    unit:"°C",   ah:90,  th:110, al:"", tl:""},
+      {name:"Fan Brg Temp HI", unit:"°C",   ah:90,  th:110, al:"", tl:""},
       {name:"Motor Brg Temp",  unit:"°C",   ah:135, th:140, al:"", tl:""},
       {name:"Motor Wdg Temp",  unit:"°C",   ah:135, th:140, al:"", tl:""},
-      {name:"Fan Vibration",   unit:"mm/s", ah:9.9, th:15,  al:"", tl:""},
-      {name:"Motor Vibration", unit:"mm/s", ah:4.5, th:7.1, al:"", tl:""},
+      {name:"Fan Vibration HI", unit:"mm/s",ah:9.9, th:15,  al:"", tl:""},
+      {name:"Motor Vibration HI", unit:"mm/s",ah:4.5,th:7.1,al:"", tl:""},
     ]},
   { id:"mill", type:"multi", title:"Mill", icon:"⚙️", color:"amber",
     units:["A","B","C","D","E","F","G","H","J"],
     dbGroups:["MILL"],
     params:[
-      {name:"Seal Air Hdr/Bowl DP", unit:"mmWC",   ah:"",  th:"",  al:200, tl:""},
-      {name:"Thrust Pad Temp",      unit:"°C",     ah:85,  th:"",  al:"",  tl:""},
-      {name:"Motor Brg Temp",       unit:"°C",     ah:90,  th:"",  al:"",  tl:""},
-      {name:"Motor Wdg Temp",       unit:"°C",     ah:120, th:130, al:"",  tl:""},
-      {name:"Shaft Brg Temp",       unit:"°C",     ah:85,  th:"",  al:"",  tl:""},
-      {name:"Lub Oil PR Low",       unit:"kg/cm²", ah:"",  th:"",  al:1.2, tl:0.8},
-      {name:"Lub Oil Temp",         unit:"°C",     ah:65,  th:"",  al:"",  tl:""},
-      {name:"Lub Oil Flow",         unit:"",       ah:118, th:105, al:"",  tl:""},
+      {name:"Seal Air Hdr / Bowl DP Low", unit:"mmWC",   ah:"",  th:"",  al:200, tl:""},
+      {name:"Mill Thrust Pad Temp HI",    unit:"°C",     ah:85,  th:"",  al:"",  tl:""},
+      {name:"Mill Motor Brg Temp HI",     unit:"°C",     ah:90,  th:"",  al:"",  tl:""},
+      {name:"Motor Winding Temp HI",      unit:"°C",     ah:120, th:130, al:"",  tl:""},
+      {name:"Shaft Brg Temp HI",          unit:"°C",     ah:85,  th:"",  al:"",  tl:""},
+      {name:"Lub Oil Pressure Low",       unit:"kg/cm²", ah:"",  th:"",  al:1.2, tl:0.8},
+      {name:"Lub Oil Temp High",          unit:"°C",     ah:65,  th:"",  al:"",  tl:""},
+      {name:"Lub Oil Flow Low",           unit:"",       ah:118, th:105, al:"",  tl:""},
     ]},
   { id:"bcw", type:"multi", title:"BCW", icon:"💧", color:"teal",
     units:["A","B","C"],
     dbGroups:["BCW"],
     params:[
-      {name:"Motor Cavity Temp", unit:"°C", ah:60, th:65, al:"", tl:""},
+      {name:"Motor Cavity Temp High", unit:"°C", ah:60, th:65, al:"", tl:""},
     ]},
 ];
 
@@ -686,7 +702,7 @@ const TG_CARDS = [
         <div class="se-meta-strip">
           <div class="se-meta-item">
             <span class="se-meta-label">Date</span>
-            <input type="date" id="se-date" style="font-size:11px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:2px 6px;outline:none;cursor:pointer">
+            <input type="date" id="se-date" style="font-size:13px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:3px 7px;outline:none;cursor:pointer">
           </div>
           <div class="se-meta-item">
             <span class="se-meta-label">Shift</span>
@@ -698,11 +714,11 @@ const TG_CARDS = [
           </div>
           <div class="se-meta-item">
             <span class="se-meta-label">Unit</span>
-            <select id="se-unit" onchange="document.getElementById('se-unit-lbl').textContent=this.value" style="font-size:11px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:2px 6px;outline:none;cursor:pointer"></select>
+            <select id="se-unit" onchange="document.getElementById('se-unit-lbl').textContent=this.value" style="font-size:13px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:3px 7px;outline:none;cursor:pointer"></select>
           </div>
           <div class="se-meta-item">
             <span class="se-meta-label">System</span>
-            <select id="se-system" onchange="document.getElementById('se-sys-lbl').textContent=this.value" style="font-size:11px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:2px 6px;outline:none;cursor:pointer">
+            <select id="se-system" onchange="document.getElementById('se-sys-lbl').textContent=this.value" style="font-size:13px;font-weight:600;color:#1a1a1a;border:1px solid #E0E0E0;background:#F8F8F8;border-radius:4px;padding:3px 7px;outline:none;cursor:pointer">
               <option value="SG">SG</option>
               <option value="TG">TG</option>
             </select>
@@ -729,7 +745,7 @@ const TG_CARDS = [
           <input type="hidden" id="se-shift" value="A">
           <div style="padding-left:12px">
             <button onclick="loadShiftEntry()"
-              style="font-size:10px;font-weight:600;padding:4px 12px;border-radius:3px;border:1px solid #387ED1;background:transparent;color:#387ED1;cursor:pointer;letter-spacing:.3px;text-transform:uppercase"
+              style="font-size:13px;font-weight:600;padding:5px 14px;border-radius:4px;border:1px solid #387ED1;background:transparent;color:#387ED1;cursor:pointer;letter-spacing:.2px"
               onmouseover="this.style.background='#EEF4FB'" onmouseout="this.style.background='transparent'">
               Load
             </button>
@@ -1651,14 +1667,13 @@ function limitCells(p) {
   const th = p.th!==''&&p.th!==null ? p.th : null;
   const al = p.al!==''&&p.al!==null ? p.al : null;
   const tl = p.tl!==''&&p.tl!==null ? p.tl : null;
-  // Show one value — prefer high, fallback low
+  // Alarm col — always blue; show H or L value
   const av = ah!==null ? ah : (al!==null ? al : null);
+  // Trip col — always red; show H or L value
   const tv = th!==null ? th : (tl!==null ? tl : null);
-  const ac = ah!==null ? "lh" : (al!==null ? "ll" : "");
-  const tc = th!==null ? "lh" : (tl!==null ? "ll" : "");
   return {
-    alarmCell: `<td class="zt al ${ac}">${av!==null?av:"—"}</td>`,
-    tripCell:  `<td class="zt tl ${tc}">${tv!==null?tv:"—"}</td>`,
+    alarmCell: `<td style="text-align:right;font-size:var(--se-f-param);color:#1565C0;font-weight:600;padding:9px 12px">${av!==null?av:"—"}</td>`,
+    tripCell:  `<td style="text-align:right;font-size:var(--se-f-param);color:#C62828;font-weight:700;padding:9px 12px">${tv!==null?tv:"—"}</td>`,
   };
 }
 
@@ -1668,7 +1683,7 @@ function valCls(alarmStatus) {
     case "NORMAL":  return "s-ok";
     case "CAUTION": return "s-cau";
     case "WARNING": return "s-war";
-    case "ALARM":   return "s-al";
+    case "ALARM":   return "s-al";  // orange
     case "TRIP":    return "s-tr";
     default: return "";
   }
@@ -1712,8 +1727,8 @@ function renderSingleCard(card, unitId, system, date, shift, isLocked) {
       <thead><tr>
         <th>Parameter</th>
         <th class="ra">Unit</th>
-        <th class="ra" style="color:#C62828">Alarm</th>
-        <th class="ra" style="color:#1565C0">Trip</th>
+        <th class="ra" style="color:#1565C0">Alarm</th>
+        <th class="ra" style="color:#C62828">Trip</th>
         <th class="ca">Value</th>
         <th class="ca">Status</th>
         <th>Remark</th>
@@ -1782,6 +1797,8 @@ function renderMultiCard(card, unitId, system, date, shift, isLocked) {
   let rows = "";
   card.params.forEach((p, pi) => {
     const {alarmCell, tripCell} = limitCells(p);
+    const av = (p.ah!==''&&p.ah!==null) ? p.ah : (p.al!==''&&p.al!==null ? p.al : null);
+    const tv = (p.th!==''&&p.th!==null) ? p.th : (p.tl!==''&&p.tl!==null ? p.tl : null);
     let cells = "";
     units.forEach((u, ui) => {
       const grp = card.dbGroups ? card.dbGroups[Math.min(ui,card.dbGroups.length-1)] : (card.dbGroup||card.title+" "+u);
@@ -1813,10 +1830,10 @@ function renderMultiCard(card, unitId, system, date, shift, isLocked) {
     });
 
     rows += `<tr>
-      <td class="pn" style="white-space:nowrap">${p.name}</td>
-      <td class="un">${p.unit||""}</td>
-      ${alarmCell}
-      ${tripCell}
+      <td class="pn sticky-col sticky-col-1" style="white-space:nowrap">${p.name}</td>
+      <td class="un sticky-col sticky-col-2">${p.unit||""}</td>
+      <td class="sticky-col sticky-col-3" style="text-align:right;font-size:var(--se-f-param);color:#1565C0;font-weight:600;padding:9px 8px">${av!==null?av:"—"}</td>
+      <td class="sticky-col sticky-col-4" style="text-align:right;font-size:var(--se-f-param);color:#C62828;font-weight:700;padding:9px 8px">${tv!==null?tv:"—"}</td>
       ${cells}
     </tr>`;
   });
@@ -1836,8 +1853,8 @@ function renderMultiCard(card, unitId, system, date, shift, isLocked) {
         <tr style="background:#FAFAFA">
           <th rowspan="2" style="width:170px">Parameter</th>
           <th rowspan="2" class="ra" style="width:44px">Unit</th>
-          <th rowspan="2" class="ra" style="width:52px;color:#C62828">Alarm</th>
-          <th rowspan="2" class="ra" style="width:52px;color:#1565C0">Trip</th>
+          <th rowspan="2" class="ra" style="width:52px;color:#1565C0">Alarm</th>
+          <th rowspan="2" class="ra" style="width:52px;color:#C62828">Trip</th>
           ${unitBands}
         </tr>
         <tr style="background:#FAFAFA">${subHdrs}</tr>
@@ -1982,20 +1999,37 @@ async function autoSaveMulti(key, cardId, unit, pi, date, shift, unitId, system,
 const paramIdCache = {};
 async function resolveParamId(groupName, paramName, unitId, system) {
   const sysCache = paramIdCache[unitId+"_"+system] || {};
-  // Try exact match first
-  const key = groupName + "|" + paramName;
-  if (sysCache[key]) return sysCache[key];
-  // Try fuzzy match — find closest param name
-  const keys = Object.keys(sysCache);
-  for (const k of keys) {
-    if (k.includes("|") && k.split("|")[0] === groupName) {
-      const dbName = k.split("|")[1].toLowerCase();
-      const reqName = paramName.toLowerCase();
-      if (dbName.includes(reqName.substring(0,8)) || reqName.includes(dbName.substring(0,8))) {
-        return sysCache[k];
-      }
+
+  // 1. Exact match
+  const exactKey = groupName + "|" + paramName;
+  if (sysCache[exactKey]) return sysCache[exactKey];
+
+  // 2. Case-insensitive exact match
+  const reqLow = paramName.toLowerCase().trim();
+  const grpLow = groupName.toLowerCase().trim();
+  for (const k of Object.keys(sysCache)) {
+    const [kg, kp] = k.split("|");
+    if (kg.toLowerCase().trim() === grpLow && kp.toLowerCase().trim() === reqLow) {
+      return sysCache[k];
     }
   }
+
+  // 3. Fuzzy — group matches, param name contains significant words
+  const reqWords = reqLow.split(/\s+/).filter(w => w.length > 2);
+  let bestScore = 0, bestId = null;
+  for (const k of Object.keys(sysCache)) {
+    const [kg, kp] = k.split("|");
+    if (kg.toLowerCase().trim() !== grpLow) continue;
+    const dbLow = kp.toLowerCase();
+    let score = 0;
+    reqWords.forEach(w => { if (dbLow.includes(w)) score++; });
+    // Also check reverse
+    const dbWords = dbLow.split(/\s+/).filter(w => w.length > 2);
+    dbWords.forEach(w => { if (reqLow.includes(w)) score += 0.5; });
+    if (score > bestScore) { bestScore = score; bestId = sysCache[k]; }
+  }
+  if (bestScore >= 1) return bestId;
+
   return null;
 }
 
