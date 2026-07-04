@@ -272,20 +272,52 @@ table.zt { width: 100%; border-collapse: collapse; font-size: 11px; }
 .se-leg-div { width: 1px; height: 10px; background: #E8E8E8; }
 
 /* STICKY FROZEN COLUMNS for multi-unit cards */
-.zt-sticky { overflow-x: auto; position: relative; }
-.zt-sticky table { border-collapse: separate; border-spacing: 0; }
-.zt-sticky th.sticky-col,
-.zt-sticky td.sticky-col {
-  position: sticky;
-  background: #fff;
+.zt-sticky {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.zt-sticky table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  table-layout: auto;
+}
+/* Replicate collapse border look with separate */
+.zt-sticky td, .zt-sticky th {
+  border-bottom: 1px solid #F5F5F5;
+  border-right: 1px solid #F5F5F5;
+}
+.zt-sticky th { border-bottom: 1px solid #E8E8E8; }
+.zt-sticky tr:last-child td { border-bottom: none; }
+
+/* Sticky columns */
+.zt-sticky td.sc1, .zt-sticky th.sc1,
+.zt-sticky td.sc2, .zt-sticky th.sc2,
+.zt-sticky td.sc3, .zt-sticky th.sc3,
+.zt-sticky td.sc4, .zt-sticky th.sc4 {
+  position: sticky !important;
   z-index: 2;
 }
-.zt-sticky thead th.sticky-col { background: #FAFAFA; z-index: 3; }
-.zt-sticky .sticky-col-1 { left: 0;    min-width: 180px; }
-.zt-sticky .sticky-col-2 { left: 180px; min-width: 52px; }
-.zt-sticky .sticky-col-3 { left: 232px; min-width: 60px; }
-.zt-sticky .sticky-col-4 { left: 292px; min-width: 60px; border-right: 2px solid #E8E8E8 !important; }
-.zt-sticky td.sticky-col { border-right: 1px solid #F0F0F0; }
+.zt-sticky thead td.sc1, .zt-sticky thead th.sc1,
+.zt-sticky thead td.sc2, .zt-sticky thead th.sc2,
+.zt-sticky thead td.sc3, .zt-sticky thead th.sc3,
+.zt-sticky thead td.sc4, .zt-sticky thead th.sc4 {
+  z-index: 4;
+}
+.zt-sticky .sc1 { left: 0;    min-width: 180px; max-width:200px; background: inherit; }
+.zt-sticky .sc2 { left: 180px; min-width: 52px; background: inherit; }
+.zt-sticky .sc3 { left: 232px; min-width: 62px; background: inherit; }
+.zt-sticky .sc4 {
+  left: 294px; min-width: 62px;
+  background: inherit;
+  border-right: 2px solid #CBD5E1 !important;
+  box-shadow: 2px 0 4px rgba(0,0,0,.06);
+}
+/* Row backgrounds so sticky cells are opaque */
+.zt-sticky tbody tr { background: #fff; }
+.zt-sticky tbody tr:hover { background: #FAFAFA; }
+.zt-sticky thead tr { background: #FAFAFA; }
+/* Second thead row (sub-headers) */
+.zt-sticky thead tr:nth-child(2) { background: #F5F7FA; }
 
 /* LOADING */
 .se-loading-box {
@@ -1830,10 +1862,10 @@ function renderMultiCard(card, unitId, system, date, shift, isLocked) {
     });
 
     rows += `<tr>
-      <td class="pn sticky-col sticky-col-1" style="white-space:nowrap">${p.name}</td>
-      <td class="un sticky-col sticky-col-2">${p.unit||""}</td>
-      <td class="sticky-col sticky-col-3" style="text-align:right;font-size:var(--se-f-param);color:#1565C0;font-weight:600;padding:9px 8px">${av!==null?av:"—"}</td>
-      <td class="sticky-col sticky-col-4" style="text-align:right;font-size:var(--se-f-param);color:#C62828;font-weight:700;padding:9px 8px">${tv!==null?tv:"—"}</td>
+      <td class="sc1 pn" style="white-space:nowrap;padding:9px 12px">${p.name}</td>
+      <td class="sc2 un" style="padding:9px 8px;text-align:right">${p.unit||""}</td>
+      <td class="sc3" style="text-align:right;font-size:var(--se-f-param);color:#1565C0;font-weight:600;padding:9px 8px">${av!==null?av:"—"}</td>
+      <td class="sc4" style="text-align:right;font-size:var(--se-f-param);color:#C62828;font-weight:700;padding:9px 8px">${tv!==null?tv:"—"}</td>
       ${cells}
     </tr>`;
   });
@@ -1844,20 +1876,20 @@ function renderMultiCard(card, unitId, system, date, shift, isLocked) {
     <div class="z-card-head">
       <span class="z-card-title">${card.title}</span>
       <div class="z-card-meta">
-        <span class="z-card-count">${card.params.length} parameters · ${units.length} units</span>
+        <span class="z-card-count">${card.params.length} params · ${units.length} units</span>
       </div>
     </div>
-    <div style="overflow-x:auto">
-    <table class="zt" style="table-layout:auto">
+    <div class="zt-sticky">
+    <table class="zt">
       <thead>
-        <tr style="background:#FAFAFA">
-          <th rowspan="2" style="width:170px">Parameter</th>
-          <th rowspan="2" class="ra" style="width:44px">Unit</th>
-          <th rowspan="2" class="ra" style="width:52px;color:#1565C0">Alarm</th>
-          <th rowspan="2" class="ra" style="width:52px;color:#C62828">Trip</th>
+        <tr>
+          <th class="sc1" rowspan="2" style="text-align:left;padding:7px 12px">Parameter</th>
+          <th class="sc2 ra" rowspan="2" style="padding:7px 8px">Unit</th>
+          <th class="sc3 ra" rowspan="2" style="color:#1565C0;padding:7px 8px">Alarm</th>
+          <th class="sc4 ra" rowspan="2" style="color:#C62828;padding:7px 8px">Trip</th>
           ${unitBands}
         </tr>
-        <tr style="background:#FAFAFA">${subHdrs}</tr>
+        <tr>${subHdrs}</tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
